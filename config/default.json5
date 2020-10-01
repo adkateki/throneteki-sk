@@ -1,19 +1,19 @@
 {
-    env: 'development',
+    env: 'production',
 
     secret: 'somethingverysecret',
     hmacSecret: 'somethingevenmoresecret',
 
-    dbPath: 'mongodb://mongo:27017/throneteki',
+    dbPath: 'mongodb://localhost:27017/teki',
     // This is the host/port of the Zero MQ server which does the node load balancing
     requireActiviation: false,
     appName: 'The Iron Throne',
 
-    mqHost: 'lobby',
+    mqHost: 'localhost',
     mqPort: 6000,
 
     minLobbyChatTime: 0, // The time (in seconds) an account has to be registered before it can chat in the lobby
     nodeIdentity: 'node1',
-    host: 'localhost',
+    host: '192.168.3.121',
     socketioPort: 5000
-}
+	}
