@@ -19,6 +19,6 @@ class KingsLandingSmuggler extends DrawCard {
     }
 }
 
-KingsLandingSmuggler.code = 'SK01003';
+KingsLandingSmuggler.code = '50003';
 
 module.exports = KingsLandingSmuggler;

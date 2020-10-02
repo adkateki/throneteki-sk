@@ -28,6 +28,6 @@ class Brimstone extends DrawCard {
     }
 }
 
-Brimstone.code = 'SK01010';
+Brimstone.code = '50010';
 
 module.exports = Brimstone;

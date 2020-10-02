@@ -17,6 +17,6 @@ class BeronBlacktyde extends DrawCard {
     }
 }
 
-BeronBlacktyde.code = 'SK01005';
+BeronBlacktyde.code = '50005';
 
 module.exports = BeronBlacktyde;

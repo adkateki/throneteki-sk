@@ -14,6 +14,6 @@ class KnightsHonor extends DrawCard {
 
 }
 
-KnightsHonor.code = 'SK01016';
+KnightsHonor.code = '50016';
 
 module.exports = KnightsHonor;

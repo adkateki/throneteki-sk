@@ -18,6 +18,6 @@ class BoltonMarauders extends DrawCard {
     }
 }
 
-BoltonMarauders.code = 'SK01013';
+BoltonMarauders.code = '50013';
 
 module.exports = BoltonMarauders;

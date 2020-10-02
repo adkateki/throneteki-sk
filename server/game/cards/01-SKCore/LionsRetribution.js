@@ -34,9 +34,9 @@ class LionsRetribution extends DrawCard {
             this.game.addMessage('{0} then uses {1} to discard {2} from {3}\'s hand{4}',
                 player, this, card, otherPlayer, charMessage);
         });
-
+    }
 }
 
-LionsRetribution.code = 'SK01008';
+LionsRetribution.code = '50008';
 
 module.exports = LionsRetribution;

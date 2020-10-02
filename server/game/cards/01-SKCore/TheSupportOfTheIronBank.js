@@ -22,6 +22,6 @@ class TheSupportOfTheIronBank extends DrawCard {
     }
 }
 
-TheSupportOfTheIronBank.code = 'SK01020';
+TheSupportOfTheIronBank.code = '50020';
 
 module.exports = TheSupportOfTheIronBank;

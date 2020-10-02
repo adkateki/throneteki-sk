@@ -12,6 +12,6 @@ class SerVortimerCrane extends DrawCard {
 
 }
 
-SerVortimerCrane.code = 'SK01015';
+SerVortimerCrane.code = '50015';
 
 module.exports = SerVortimerCrane;

@@ -22,6 +22,6 @@ class ClubfootKarl extends DrawCard {
 
 }
 
-ClubfootKarl.code = 'SK01011';
+ClubfootKarl.code = '50011';
 
 module.exports = ClubfootKarl;

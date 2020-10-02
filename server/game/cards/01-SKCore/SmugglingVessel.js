@@ -23,6 +23,6 @@ class SmugglingVessel extends DrawCard {
     }
 }
 
-SmugglingVessel.code = 'SK01019';
+SmugglingVessel.code = '50019';
 
 module.exports = SmugglingVessel;

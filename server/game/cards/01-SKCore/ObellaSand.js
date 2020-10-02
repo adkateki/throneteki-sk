@@ -31,6 +31,6 @@ class ObellaSand extends DrawCard {
     }
 }
 
-ObellaSand.code = 'SK01009';
+ObellaSand.code = '50009';
 
 module.exports = ObellaSand;

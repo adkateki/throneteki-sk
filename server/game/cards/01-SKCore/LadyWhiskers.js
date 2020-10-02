@@ -13,6 +13,6 @@ class LadyWhiskers extends DrawCard {
     }
 }
 
-LadyWhiskers.code = 'SK01007';
+LadyWhiskers.code = '50007';
 
 module.exports = LadyWhiskers;

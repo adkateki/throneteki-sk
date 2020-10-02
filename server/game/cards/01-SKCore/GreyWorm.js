@@ -7,15 +7,16 @@ class GreyWorm extends DrawCard {
             match: this,
             effect: ability.effects.doesNotKneelAsDefender()
         });
-    opponentHasMoreChars() {
-        let opponents = this.game.getOpponents(this.controller);
-        return opponents.some(opponent => {
-            return opponent.getNumberOfCardsInPlay(card => card.getType() === 'character') > this.controller.getNumberOfCardsInPlay(card => card.getType() === 'character');
-        });
+	
     }
+    opponentHasMoreChars() {
+	let opponents = this.game.getOpponents(this.controller);
+	return opponents.some(opponent => {
+	    return opponent.getNumberOfCardsInPlay(card => card.getType() === 'character') > this.controller.getNumberOfCardsInPlay(card => card.getType() === 'character');
+	});
     }
 }
 
-GreyWorm.code = 'SK01017';
+GreyWorm.code = '50017';
 
 module.exports = GreyWorm;

@@ -14,6 +14,6 @@ class Gulltown extends DrawCard {
     }
 }
 
-Gulltown.code = 'SK01004';
+Gulltown.code = '50004';
 
 module.exports = Gulltown;

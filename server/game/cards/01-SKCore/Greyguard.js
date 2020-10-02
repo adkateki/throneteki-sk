@@ -15,6 +15,6 @@ class Greyguard extends DrawCard {
     }
 }
 
-Greyguard.code = 'SK01012';
+Greyguard.code = '50012';
 
 module.exports = Greyguard;

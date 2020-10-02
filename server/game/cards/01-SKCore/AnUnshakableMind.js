@@ -13,6 +13,6 @@ class AnUnshakableMind extends PlotCard {
     }
 }
 
-AnUnshakableMind.code = 'SK01001';
+AnUnshakableMind.code = '50001';
 
 module.exports = AnUnshakableMind;

@@ -28,6 +28,6 @@ class GreyWind extends DrawCard {
     }
 }
 
-GreyWind.code = 'SK01014';
+GreyWind.code = '50014';
 
 module.exports = GreyWind;

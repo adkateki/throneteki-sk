@@ -5,7 +5,7 @@ class Shavepates extends DrawCard {
         this.interrupt({
 	    when: {
 		onCardLeftPlay: event => event.card === this
-            }
+            },
             title: 'Shuffle attachment from discard pile back into deck',
             target: {
                 cardCondition: card => card.controller === this.controller && card.location === 'discard pile' && card.getType() === 'attachment'
@@ -30,6 +30,6 @@ class Shavepates extends DrawCard {
     }
 }
 
-Shavepates.code = 'SK01018';
+Shavepates.code = '50018';
 
 module.exports = Shavepates;

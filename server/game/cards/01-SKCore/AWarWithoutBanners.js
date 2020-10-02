@@ -11,7 +11,7 @@ class AWarWithoutBanners extends DrawCard {
     }
 }
 
-AWarWithoutBanners.code = 'SK01002';
+AWarWithoutBanners.code = '50002';
 
 module.exports = AWarWithoutBanners;
 

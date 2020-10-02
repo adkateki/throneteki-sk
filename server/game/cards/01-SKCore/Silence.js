@@ -21,6 +21,6 @@ class Silence extends DrawCard {
     }
 }
 
-Silence.code = 'SK01006';
+Silence.code = '50006';
 
 module.exports = Silence;
