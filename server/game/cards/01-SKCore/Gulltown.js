@@ -1,7 +1,7 @@
 const DrawCard = require('../../drawcard.js');
 
 class Gulltown extends DrawCard {
-    setupCardAbilities() {
+    setupCardAbilities(ability) {
         this.persistentEffect({
             targetController: 'current',
             effect: ability.effects.cannotSetup(card => card == this)
