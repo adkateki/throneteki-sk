@@ -5,12 +5,13 @@ class EuronsArmor extends DrawCard {
     setupCardAbilities(ability) {
         this.attachmentRestriction({ trait: 'Ironborn' });
         this.whileAttached({
-            effect: ability.effects.immuneTo(card => card.controller !== this.controller && card.getType() === 'event')
+            effect: ability.effects.immuneTo(card => card.getType() === 'event')
         });
         this.interrupt({
             canCancel: true,
             when: {
                 onCharacterKilled: event => event.card === this.parent && this.parent.canBeSaved() && event.allowSave,
+                onCardReturnedToHand: event => event.card.getType() === 'character' && event.card === this.parent && this.parent.canBeSaved() && event.allowSave,
             },
             cost: ability.costs.kneelSelf(),
             handler: context => {
