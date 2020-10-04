@@ -1,6 +1,6 @@
 const DrawCard = require('../../drawcard');
 
-class ManticorePoison extends DrawCard {
+class ManticoreVenom extends DrawCard {
     setupCardAbilities() {
         this.action({
             target: {
@@ -21,6 +21,6 @@ class ManticorePoison extends DrawCard {
     
 }
 
-ManticorePoison.code = '50030';
+ManticoreVenom.code = '50030';
 
-module.exports = ManticorePoison;
+module.exports = ManticoreVenom;
