@@ -5,7 +5,7 @@ class ManticoreVenom extends DrawCard {
         this.action({
             target: {
                 type: 'select',
-                cardCondition: card.location === 'play area' && card => card.getType() === 'character' && card.getPrintedCost() <= 4,
+                cardCondition: card => card.location === 'play area' && card.getType() === 'character' && card.getPrintedCost() <= 4
             },
             phase: 'taxation',
             handler: context => {

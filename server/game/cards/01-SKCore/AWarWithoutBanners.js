@@ -1,11 +1,16 @@
-const DrawCard = require('../../drawcard');
+const PlotCard = require('../../plotcard');
 
-class AWarWithoutBanners extends DrawCard {
+class AWarWithoutBanners extends PlotCard {
     setupCardAbilities(ability) {
-        this.persistentEffect({
-            match: card => card.getType() === 'faction',
-            targetController: 'any',
-            effect: ability.effects.cannotBeKneeled
+
+        this.whenRevealed({
+
+            message: '{player} uses {source} to kneel all faction cards',
+            handler: context => {
+                for(let player of this.game.getPlayersInFirstPlayerOrder()) {
+                    this.controller.kneelCard(player.faction);
+                }
+            }
         });
 
     }

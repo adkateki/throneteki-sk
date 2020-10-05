@@ -1,4 +1,5 @@
 const DrawCard = require('../../drawcard.js');
+const {Tokens} = require('../../Constants');
 
 class KingsLandingSmuggler extends DrawCard {
     setupCardAbilities() {
@@ -10,9 +11,9 @@ class KingsLandingSmuggler extends DrawCard {
             	activePromptTitle: 'Select a card in play',
 		cardCondition: card => card.location === 'play area'
             },
-            handler: () => {
+            handler: (context) => {
                 this.game.addMessage('{0} uses {1} to place a gold from the treasury on {2}', this.controller, this, context.target);
-		this.modifyToken(Tokens.gold, 1);		
+		context.target.modifyToken(Tokens.gold, 1);		
 
             }
         });

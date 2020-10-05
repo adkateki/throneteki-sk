@@ -1,6 +1,6 @@
 const DrawCard = require('../../drawcard.js');
 
-class RedSmiths extends DrawCard {
+class Redsmiths extends DrawCard {
     setupCardAbilities() {
         this.reaction({
             when: {
@@ -10,7 +10,7 @@ class RedSmiths extends DrawCard {
                 cardCondition: card => (
                     card.location === 'play area' &&
                     card.getType() === 'character' &&
-                    card.getPrintedCost() <= 1)
+                    card.getStrength() <= 1)
             },
             handler: context => {
                 context.target.owner.returnCardToHand(context.target);
@@ -20,6 +20,6 @@ class RedSmiths extends DrawCard {
     }
 }
 
-RedSmiths.code = '50027';
+Redsmiths.code = '50027';
 
-module.exports = RedSmiths;
+module.exports = Redsmiths;

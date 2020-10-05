@@ -11,7 +11,7 @@ class SerVardisEgen extends DrawCard {
 
     hasOtherDefendingArryn() {
         return this.controller.anyCardsInPlay(card => card.isDefending() &&
-                                                      card.hAsTrait('House Arryn') &&
+                                                      card.hasTrait('House Arryn') &&
                                                       card.getType() === 'character' &&
                                                       card !== this);
     }

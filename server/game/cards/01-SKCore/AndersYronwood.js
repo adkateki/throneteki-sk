@@ -1,4 +1,5 @@
 const DrawCard = require('../../drawcard.js');
+const ChallengeTypes = require('../../ChallengeTypes');
 
 class AndersYronwood extends DrawCard {
     setupCardAbilities(ability) {

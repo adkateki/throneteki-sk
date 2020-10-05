@@ -7,7 +7,7 @@ class ThreeTowers extends DrawCard {
                 onRemovedFromChallenge: event => event.card.location === 'play area'
             },
             cost: ability.costs.kneelSelf(),
-            handler: () => {
+            handler: (context) => {
 		this.untilEndOfPhase(ability => ({
 		    match: context.event.card,
 		    effect: ability.effects.modifyStrength(-3)

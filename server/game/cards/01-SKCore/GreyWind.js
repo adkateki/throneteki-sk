@@ -12,7 +12,7 @@ class GreyWind extends DrawCard {
 
         this.interrupt({
             when: {
-                onCarhacterKilled: event => event.card === this 
+                onCharacterKilled: event => event.card === this.parent
             },
             cost: ability.costs.removeSelfFromGame(),
             target: {

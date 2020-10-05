@@ -3,15 +3,15 @@ const DrawCard = require('../../drawcard.js');
 class OneRealmOneGodOneKing extends DrawCard {
     setupCardAbilities() {
         this.action({
-            phase: 'standing'
+            phase: 'standing',
             handler: () => {
-                let str2 = this.game.filterCardsInPlay(card => card.getType() === 'character') && card.getPrintedCost() <= 2;
+                let str2 = this.game.filterCardsInPlay(card => card.getType() === 'character' && card.getStrength() <= 2);
                 if(str2.length > 0) {
                     for(let card of str2) {
                         card.controller.kneelCard(card);
                     }
-                    this.game.addMessage('{0} use {1} to kneel characters with printed cost 2 or lower', this.controller,this);
                 }
+                this.game.addMessage('{0} use {1} to kneel characters with printed cost 2 or lower', this.controller,this);
             }
         });
     }

@@ -5,6 +5,7 @@ class DeepLake extends DrawCard {
         this.action({
             title: 'Choose character',
             phase: 'challenge',
+            cost: ability.costs.kneelSelf(),
             target: {
                 cardCondition: card => card.location === 'play area' && card.getType() === 'character'
             },

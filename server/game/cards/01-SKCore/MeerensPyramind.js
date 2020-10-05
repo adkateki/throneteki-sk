@@ -15,6 +15,8 @@ class MeereensPyramid extends DrawCard {
                     match: context.target,
                     effect: ability.effects.killByStrength(0)
                 }));                
+                this.game.addMessage('{0} use {1} to choose {2}. It will be killed if its STR is 0.',
+                    context.player, this, context.target);
             }			
         });		
     }

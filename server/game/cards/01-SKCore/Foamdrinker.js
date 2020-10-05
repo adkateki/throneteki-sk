@@ -14,13 +14,15 @@ class Foamdrinker extends DrawCard {
             cost: ability.costs.kneelSelf(),
             target: {
                 cardCondition: card => card.getType() === 'character' && card.location === 'play area' &&
-                                       card.isParticipating() && card.isFaction('greyjoy')
+                                       card.isFaction('greyjoy')
             },
             handler: context => {
                 this.untilEndOfPhase(ability => ({
                     match: context.target,
                     effect: ability.effects.addKeyword('Pillage')
                 }));
+                this.game.addMessage('{0} use {1} to give pillate to {2}',
+                    context.player, this, context.target);
             }
             
         });
@@ -28,6 +30,6 @@ class Foamdrinker extends DrawCard {
     }
 }
 
-Foamdrinker.code = '50006';
+Foamdrinker.code = '50026';
 
 module.exports = Foamdrinker;

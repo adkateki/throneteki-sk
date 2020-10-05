@@ -3,10 +3,12 @@ const DrawCard = require('../../drawcard.js');
 class LionsRetribution extends DrawCard {
     setupCardAbilities(ability) {
         this.reaction({
+            max: ability.limit.perChallenge(1),
             when: {
                 afterChallenge: event => event.challenge.challengeType === 'intrigue' && event.challenge.winner === this.controller &&
                                          event.challenge.attackingPlayer === this.controller && event.challenge.strengthDifference >= 5
             },
+            chooseOpponent: opponent => opponent.hand.length !== 0,
             handler: context => {
                 this.game.addMessage('{0} plays {1} to look at {2}\'s hand', context.player, this, this.game.currentChallenge.loser);
                 this.game.promptForSelect(context.player, {
@@ -34,6 +36,7 @@ class LionsRetribution extends DrawCard {
             this.game.addMessage('{0} then uses {1} to discard {2} from {3}\'s hand{4}',
                 player, this, card, otherPlayer, charMessage);
         });
+        return true;
     }
 }
 

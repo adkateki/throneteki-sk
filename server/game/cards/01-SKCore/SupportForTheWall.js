@@ -11,7 +11,7 @@ class SupportForTheWall extends PlotCard {
         });
         this.action({
             title: 'Stand an Army character',
-            phase: 'challenges',
+            phase: 'challenge',
             target: {
                 cardCondition: card => card.location === 'play area' && card.hasTrait('Army') &&
                                        card.getType() === 'character' && card.kneeled

@@ -160,6 +160,30 @@ const Effects = {
             isStateDependent: true
         };
     },
+    consideredToBeDefending: function() {
+        return {
+            apply: function(card, context) {
+                let challenge = context.game.currentChallenge;
+                if(card.canParticipateInChallenge() && !challenge.isDefending(card)) {
+                    challenge.addDefender(card);
+                }
+            },
+            reapply: function(card, context) {
+                let challenge = context.game.currentChallenge;
+                if(card.canParticipateInChallenge() && !challenge.isDefending(card)) {
+                    challenge.addDefender(card);
+                }
+            },
+            unapply: function(card, context) {
+                let challenge = context.game.currentChallenge;
+
+                if(challenge && challenge.isDefending(card) && !challenge.isDeclared(card)) {
+                    challenge.removeFromChallenge(card);
+                }
+            },
+            isStateDependent: true
+        };
+    },
     canBeDeclaredWithoutIcon: challengeOptionEffect('canBeDeclaredWithoutIcon'),
     canBeDeclaredWhileKneeling: challengeOptionEffect('canBeDeclaredWhileKneeling'),
     mustBeDeclaredAsAttacker: challengeOptionEffect('mustBeDeclaredAsAttacker'),
