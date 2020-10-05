@@ -4,7 +4,8 @@ const TextHelper = require('../../TextHelper');
 class EuronsArmor extends DrawCard {
     setupCardAbilities(ability) {
         this.attachmentRestriction({ faction: 'greyjoy', unique: true });
-        this.whileAttached({
+        this.persistentEffect({
+            match: this,
             effect: ability.effects.immuneTo(card => card.getType() === 'event')
         });
         this.interrupt({
