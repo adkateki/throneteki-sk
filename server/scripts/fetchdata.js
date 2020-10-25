@@ -10,7 +10,7 @@ const NoImageSource = require('./fetchdata/NoImageSource.js');
 
 const optionsDefinition = [
     { name: 'card-source', type: String, defaultValue: 'json' },
-    { name: 'card-dir', type: String, defaultValue: path.join(__dirname, '..', '..', 'throneteki-json-data') },
+    { name: 'card-dir', type: String, defaultValue: path.join(__dirname, '..', '..', 'throneteki-json-data-sk') },
     { name: 'image-source', type: String, defaultValue: 'cardgamedb' },
     { name: 'image-dir', type: String, defaultValue: path.join(__dirname, '..', '..', 'public', 'img', 'cards') },
     { name: 'no-images', type: Boolean, defaultValue: false }
@@ -42,7 +42,7 @@ function createImageSource(options) {
 
 let options = commandLineArgs(optionsDefinition);
 
-let db = monk('mongodb://127.0.0.1:27017/teki3');
+let db = monk('mongodb://127.0.0.1:27017/teki4');
 let dataSource = createDataSource(options);
 let imageSource = createImageSource(options);
 let cardImport = new CardImport(db, dataSource, imageSource, options['image-dir']);

@@ -4,7 +4,7 @@ class MellarioOfNorvos extends DrawCard {
     setupCardAbilities(ability) {
         this.persistentEffect({
             targetController: 'current',
-            effect: ability.effects.reduceAmbushCardCost(1, card => ())
+            effect: ability.effects.reduceAmbushCardCost(1, card => {})
         });
     }
 }

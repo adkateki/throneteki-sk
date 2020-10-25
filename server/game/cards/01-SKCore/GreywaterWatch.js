@@ -9,7 +9,7 @@ class GreywaterWatch extends PlotCard {
             cost: [
                 ability.costs.kneelSelf(),
                 ability.costs.kneel(card => card.getType() === 'character' && card.isFaction('stark') && card.canParticipateInChallenge()),
-            ]
+            ],
             handler: context => {
                 let card = context.costs.kneel;
                 this.game.currentChallenge.addParticipantToSide(context.player, card);

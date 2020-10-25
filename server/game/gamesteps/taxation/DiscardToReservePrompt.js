@@ -8,6 +8,7 @@ class DiscardToReservePrompt extends BaseStep {
     }
 
     continue() {
+        
         while(this.remainingPlayers.length !== 0) {
             let currentPlayer = this.remainingPlayers.shift();
 
@@ -18,11 +19,15 @@ class DiscardToReservePrompt extends BaseStep {
                 return false;
             }
         }
-
+        
         this.game.raiseEvent('onReserveChecked');
+
     }
 
     promptPlayerToDiscard(currentPlayer) {
+        this.game.reserve = {
+	    isApplying: true
+	}
         let overReserve = currentPlayer.hand.length - currentPlayer.getTotalReserve();
         this.game.promptForSelect(currentPlayer, {
             ordered: true,
@@ -34,6 +39,11 @@ class DiscardToReservePrompt extends BaseStep {
             onSelect: (player, cards) => this.discardCards(player, cards),
             onCancel: (player) => this.cancelSelection(player),
             source: this.source
+        });
+        this.game.queueSimpleStep(() => {
+            this.game.reserve = {
+                isApplying: false,
+            };
         });
     }
 

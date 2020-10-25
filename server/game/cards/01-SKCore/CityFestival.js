@@ -10,7 +10,6 @@ class CityFestival extends PlotCard {
                     }
                     this.game.addMessage('{0} uses {1} to gain {2} gold', player, this, gold);
                 }
-            }
         });
     }
     hasUsedCityPlot(player) {
