@@ -121,12 +121,7 @@ class Player extends Spectator {
             : card => CardMatcher.isMatch(card, predicateOrMatcher);
         return this.game.allCards.filter(card => card.controller === this && card.location === 'play area' && predicate(card));
     }
-    filterCardsInDiscard(predicateOrMatcher) {
-        const predicate = typeof(predicateOrMatcher) === 'function'
-            ? predicateOrMatcher
-            : card => CardMatcher.isMatch(card, predicateOrMatcher);
-        return this.game.allCards.filter(card => card.controller === this && card.location === 'discard pile' && predicate(card));
-    }
+    
     getNumberOfCardsInPlay(predicateOrMatcher) {
         const predicate = typeof(predicateOrMatcher) === 'function'
             ? predicateOrMatcher

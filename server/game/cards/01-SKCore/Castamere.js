@@ -1,7 +1,7 @@
 const DrawCard = require('../../drawcard.js');
 
 class Castamere extends DrawCard {
-    setupCardAbilities() {
+    setupCardAbilities(ability) {
         this.reaction({
             when: {
                 onCardEntersPlay: event => this.game.currentPhase === 'challenge' && event.card.getType() === 'character'

@@ -7,8 +7,8 @@ class CityFestival extends PlotCard {
                    if(context.player.canGainGold()) {
                         let numGold = this.hasUsedCityPlot(context.player) ? 4 : 2;
                         let gold = this.game.addGold(context.player, numGold);
+                        this.game.addMessage('{0} uses {1} to gain {2} gold', this.controller, this, gold);
                     }
-                    this.game.addMessage('{0} uses {1} to gain {2} gold', player, this, gold);
                 }
         });
     }

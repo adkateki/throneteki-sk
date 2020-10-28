@@ -1,7 +1,7 @@
 const DrawCard = require('../../drawcard.js');
 
 class TyrionLannister extends DrawCard {
-    setupCardAbilities() {
+    setupCardAbilities(ability) {
         this.reaction({
             when: {
                 'onCardDiscarded:aggregate': event => (

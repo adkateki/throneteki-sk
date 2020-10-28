@@ -1,6 +1,6 @@
-const PlotCard = require('../../plotcard.js');
+const DrawCard = require('../../drawcard.js');
 
-class GreywaterWatch extends PlotCard {
+class GreywaterWatch extends DrawCard {
     setupCardAbilities(ability) {
         this.action({
             title: 'Kneel a character to have it participate in the current challenge',

@@ -694,7 +694,7 @@ class BaseCard {
         if(this.tokens[type] === 0) {
             delete this.tokens[type];
         }
-
+        this.raiseEvent('onTokenPlaced',{ type: type, card: this});
         this.markAsDirty();
     }
 

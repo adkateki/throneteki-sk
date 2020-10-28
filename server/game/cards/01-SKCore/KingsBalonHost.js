@@ -5,7 +5,7 @@ class KingsBalonHost extends DrawCard {
         this.persistentEffect({
             condition: () => this.controller.firstPlayer,
             match: this,
-            effect: ability.effects.modifyStrength(2)
+            effect: ability.effects.modifyStrength(4)
         });
         this.reaction({
             when: {

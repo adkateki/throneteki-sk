@@ -8,11 +8,11 @@ class InvasionOfTheHarbor extends DrawCard {
                 afterChallenge: event => event.challenge.winner === this.controller && event.challenge.isUnopposed()
             },
             cost: [
-                ability.costs.payXGold(() => this.getMinimumLocationCost(), () => 99)
+                ability.costs.payXGold(() => this.getMinimumCost(), () => 99)
             ],
             target: {
                 activePromptTitle: 'Select a location in an opponent discard pile',
-                cardCondition: card => card.location === 'discard pile' && card.controller === this.game.currentChallenge.loser && (card.getType() === 'location') && this.controller.canPutIntoPlay(card) && (context.xValue ? (card.getPrintedCost() <= context.xValue) : (card.getPrintedCost() <= this.controller.getSpendableGold()))
+                cardCondition: (card, context) => card.location === 'discard pile' && card.controller === this.game.currentChallenge.loser && (card.getType() === 'location') && this.controller.canPutIntoPlay(card) && (context.xValue ? (card.getPrintedCost() <= context.xValue) : (card.getPrintedCost() <= this.controller.getSpendableGold()))
             },
             handler: context => {
                 context.player.putIntoPlay(context.target);
@@ -20,13 +20,12 @@ class InvasionOfTheHarbor extends DrawCard {
             }
         });
     }
-    getMinimumLocationCost() {
-        let opponents = this.game.getOpponents(this.controller);
-        let opponentLocations = flatten(opponents.map(opponent => opponent.filterCardsInDiscard(card => card.getType() === 'location' && card.hasPrintedCost())));
-        let locationCosts = opponentLocations.map(card => card.getPrintedCost());
-
-        return Math.min(...locationCosts);
+    getMinimumCost() {
+        return this.game.filterCardsInPlay(card => card.getType() === 'location' && card.location === 'discard pile')
+            .map(card => card.getPrintedCost())
+            .reduce(((acc, val) => Math.min(acc, val)), 0);
     }
+    
 
 }
 
