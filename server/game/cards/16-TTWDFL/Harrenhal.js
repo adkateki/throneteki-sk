@@ -38,7 +38,8 @@ class Harrenhal extends DrawCard {
                 GameActions.placeToken({
                     amount: 1,
                     card: this,
-                    token: Tokens.ghost
+                    token: Tokens.ghost,
+                    source: this
                 })
             ])
         });

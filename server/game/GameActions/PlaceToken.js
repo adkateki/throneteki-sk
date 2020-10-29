@@ -9,8 +9,8 @@ class PlaceToken extends GameAction {
         return ['active plot', 'agenda', 'play area', 'shadows', 'title'].includes(card.location) && amount > 0;
     }
 
-    createEvent({ card, token, amount = 1 }) {
-        return this.event('onTokenPlaced', { card, token, amount, desiredAmount: amount }, event => {
+    createEvent({ card, token, amount = 1, source }) {
+        return this.event('onTokenPlaced', { card, token, amount, desiredAmount: amount, source }, event => {
             event.card.modifyToken(event.token, event.amount);
         });
     }

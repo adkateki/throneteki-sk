@@ -12,7 +12,7 @@ class LingeringVenom extends DrawCard {
             handler: context => {
                 this.game.resolveGameAction(
                     GameActions.placeToken({
-                        card: this, token: Tokens.venom
+                        card: this, token: Tokens.venom, source: this
                     }).then({
                         condition: () => this.parent.getStrength() <= this.tokens[Tokens.venom],
                         message: {

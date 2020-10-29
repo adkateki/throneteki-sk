@@ -1,4 +1,5 @@
 const DrawCard = require('../../drawcard.js');
+const GameActions = require('../../GameActions');
 const {Tokens} = require('../../Constants');
 
 class KingsLandingSmuggler extends DrawCard {
@@ -13,7 +14,10 @@ class KingsLandingSmuggler extends DrawCard {
             },
             handler: (context) => {
                 this.game.addMessage('{0} uses {1} to place a gold from the treasury on {2}', this.controller, this, context.target);
-		context.target.modifyToken(Tokens.gold, 1);		
+                this.game.resolveGameAction(
+                    GameActions.placeToken(() => ({ card: context.target, token: Tokens.gold, source: this })),
+                    context
+                );
 
             }
         });

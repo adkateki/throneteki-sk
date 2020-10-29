@@ -25,7 +25,7 @@ class ChellaDaughterOfCheyk extends DrawCard {
             message: '{player} uses {source} to place 1 ear token to {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.ear })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.ear, source: this })),
                     context
                 );
             }

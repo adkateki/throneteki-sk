@@ -9,6 +9,7 @@ const ChallengeRestriction = require('./ChallengeRestriction.js');
 const ImmunityRestriction = require('./immunityrestriction.js');
 const GoldSource = require('./GoldSource.js');
 const {Tokens} = require('./Constants');
+const GameActions = require('./GameActions');
 
 function cannotEffect(type) {
     return function(predicate) {
@@ -504,7 +505,11 @@ const Effects = {
     },
     poison: {
         apply: function(card, context) {
-            card.modifyToken(Tokens.poison, 1);
+	    context.game.resolveGameAction(
+		GameActions.placeToken(() => ({ card: card, token: Tokens.poison, source: context.source })),
+		context
+	    );
+            //card.modifyToken(Tokens.poison, 1);
             context.game.addMessage('{0} uses {1} to place 1 poison token on {2}', context.source.controller, context.source, card);
         },
         unapply: function(card, context) {

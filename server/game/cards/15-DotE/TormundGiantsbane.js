@@ -11,7 +11,7 @@ class TormundGiantsbane extends DrawCard {
             message: '{player} places 1 tale token on {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.tale })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.tale, source: this })),
                     context
                 );
             }
