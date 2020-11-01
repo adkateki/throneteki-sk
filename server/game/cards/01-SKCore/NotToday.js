@@ -5,7 +5,7 @@ class NotToday extends DrawCard {
         this.interrupt({
             canCancel: true,
             when: {
-                onCharacterKilled: event => event.card.controller ===this.controller
+                onCharacterKilled: event => event.card.controller ===this.controller && event.card.isUnique()
             },
             handler: context => {
 		let card = context.event.card;

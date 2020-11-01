@@ -5,7 +5,7 @@ class WeLightTheWay extends DrawCard {
         this.action({
             title: 'Raise claim by 1',
             max: ability.limit.perChallenge(1),
-            condition: () => this.game.isDuringChallenge() && this.game.currentChallenge.attackingPlayer === this.controller && this.game.currentChallenge.attackers.length === 1,
+            condition: () => this.game.isDuringChallenge() && this.game.currentChallenge.attackingPlayer === this.controller && this.game.currentChallenge.attackers.length === 1 && this.hasAttackingTyrell(),
             handler: () => {
                 this.untilEndOfChallenge(ability => ({
                     match: card => card === this.controller.activePlot,
@@ -16,6 +16,11 @@ class WeLightTheWay extends DrawCard {
                     this.controller, this);
             }
         });
+    }
+    hasAttackingTyrell() {
+        return this.controller.anyCardsInPlay(card => card.isAttacking() &&
+                                                      card.isFaction('tyrell') &&
+                                                      card.getType() === 'character');
     }
 }
 

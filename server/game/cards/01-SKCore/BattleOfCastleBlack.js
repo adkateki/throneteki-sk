@@ -23,14 +23,14 @@ class BattleOfCastleBlack extends PlotCard {
         } 
     }
     extraChallengeType(player, challengeType) {
-        this.game.addMessage('{0} choose {1} as the extra challenge for {2}',
+        this.game.addMessage('{0} choose {2} as the extra challenge for {1}',
             player, this, challengeType);
 
         this.lastingEffect(ability => ({
             until: {
-                onCardEntersPlay: event => event.card.getType() === 'plot' && event.card.controller === player
+                onCardEntersPlay: event => event.card.getType() === 'plot' && event.card.controller === this.controller
             },
-            targetController: 'current',
+            targetController: (player !== this.controller) ? 'opponent' : 'current',
             effect: ability.effects.mayInitiateAdditionalChallenge(challengeType)
         }));
 
