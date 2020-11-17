@@ -5,6 +5,7 @@ COPY package.json /usr/src/tekiserver/
 COPY package-lock.json /usr/src/tekiserver/
 #RUN npm install
 COPY . /usr/src/tekiserver
+RUN mkdir server/logs
 RUN npm install
 #EXPOSE 4000
 #EXPOSE 6000

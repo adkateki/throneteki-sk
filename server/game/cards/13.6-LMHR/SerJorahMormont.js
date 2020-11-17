@@ -9,8 +9,8 @@ class SerJorahMormont extends DrawCard {
             location: ['hand'],
             handler: context => {
                 this.game.addMessage('{0} uses {1} to put {1} into shadows instead of placing it in their discard pile', this.controller, this);
-                context.event.replaceHandler(() => {
-                    context.event.cardStateWhenDiscarded = event.card.createSnapshot();
+                context.event.replaceHandler( event => {
+                    event.cardStateWhenDiscarded = event.card.createSnapshot();
                     this.controller.putIntoShadows(this);
                 });
             }
