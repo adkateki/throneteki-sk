@@ -14,7 +14,7 @@ class SilencesCrew extends DrawCard {
                 onCardDiscarded: event => event.isPillage && event.source === this &&
                                     (event.card.getType() === 'location' || event.card.getType() === 'attachment')
             },
-            handler: () => {
+            handler: (context) => {
                 this.game.resolveGameAction(
                     GameActions.placeToken(() => ({ card: this, token: Tokens.gold, source: this })),
                     context

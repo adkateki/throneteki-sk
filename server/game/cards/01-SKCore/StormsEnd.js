@@ -4,7 +4,7 @@ class StormsEnd extends DrawCard {
     setupCardAbilities(ability) {
         this.reaction({
             when: {
-                onCardPowerGained: event => event.card.getType() === 'character' || event.card.getType() === 'location'
+                onCardPowerGained: event => event.card.controller === this.controller && ( event.card.getType() === 'character' || event.card.getType() === 'location' )
             },
             limit: ability.limit.perRound(2),
             handler: context => {

@@ -4,7 +4,7 @@ class FaliaFlowers extends DrawCard {
     setupCardAbilities(ability) {
         this.interrupt({
             when: {
-                onCardDiscarded: event => event.card.controller === this.controller && event.originalLocation === 'play area'
+                onCardDiscarded: event => event.card.owner === this.controller && event.originalLocation === 'play area' && event.card.getType() === 'location' && event.card.hasTrait('Warship') 
             },
             cost: ability.costs.sacrificeSelf(),
             handler: context => {

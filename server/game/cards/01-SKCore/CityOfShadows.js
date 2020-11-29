@@ -7,7 +7,7 @@ class CityOfShadows extends PlotCard {
         this.whenRevealed({
             target: {
                 numCards: 2,
-                activePromptTitle: 'Select up to 3 cards',
+                activePromptTitle: 'Select up to 2 cards',
                 cardCondition: (card, context) => context.player === card.controller && card.location === 'hand'
             },
             handler: context => {
