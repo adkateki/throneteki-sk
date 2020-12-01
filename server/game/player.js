@@ -659,16 +659,6 @@ class Player extends Spectator {
         this.bonusesFromRivals.clear();
     }
 
-    flipPlotFaceup() {
-        if(!this.selectedPlot) {
-            return;
-        }
-
-        this.selectedPlot.flipFaceup();
-        this.moveCard(this.selectedPlot, 'active plot');
-        this.selectedPlot = undefined;
-    }
-
     recyclePlots() {
         const plots = this.plotDeck.filter(plot => !plot.notConsideredToBeInPlotDeck);
         if(plots.length === 0) {
@@ -677,16 +667,6 @@ class Player extends Spectator {
             }
 
             this.game.raiseEvent('onPlotsRecycled', { player: this });
-        }
-    }
-
-    removeActivePlot() {
-        if(this.activePlot && this.selectedPlot) {
-            let plot = this.activePlot;
-            this.moveCard(this.activePlot, 'revealed plots');
-            this.game.raiseEvent('onPlotDiscarded', { player: this, card: plot });
-            this.activePlot = undefined;
-            return plot;
         }
     }
 
@@ -1001,7 +981,7 @@ class Player extends Spectator {
             return;
         }
 
-        if(card.location === 'play area') {
+        if(card.location === 'play area' && targetLocation !== 'play area') {
             var params = {
                 player: this,
                 card: card,
