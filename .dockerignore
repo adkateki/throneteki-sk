@@ -2,3 +2,5 @@ node_modules
 public
 mongodb
 throneteki-json-data-sk
+throneteki-json-data
+server/logs
