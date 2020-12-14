@@ -49,6 +49,27 @@ class AchievementService {
             });
     }
 
+    getAnyAchievements() {
+        return this.achievements.find({ 
+		$and: [
+		    { agenda: { $exists: false} },
+		    { faction: { $exists: false }}
+		]
+	})
+            .then(result => {
+                let achievements = {};
+
+                for(let achievement of result) {
+                    logger.info(achievement.code);
+                    achievements[achievement.code] = achievement;
+                }
+
+                return achievements;
+            }).catch(err => {
+                logger.info(err);
+            });
+    }
+
     getActiveVersion(versions) {
         const now = moment();
         return versions.reduce((max, list) => {

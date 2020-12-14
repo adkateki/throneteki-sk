@@ -4,6 +4,7 @@ const ConfigService = require('./ConfigService');
 const UserService = require('./UserService');
 const BanlistService = require('./BanlistService');
 const EventService = require('./EventService');
+const AchievementService = require('./AchievementService');
 
 let services = {};
 
@@ -49,5 +50,12 @@ module.exports = {
         }
 
         return services.eventService;
+    },
+    ahievementService: db => {
+	if(!services.achievementService) {
+            services.achievementService = new AchievementService(db);
+        }
+
+        return services.achievementService;
     }
 };
