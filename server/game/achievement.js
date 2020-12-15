@@ -1,7 +1,8 @@
 class Achievement {
-    contructor(owner, achievementData){
+    contructor(owner){
          this.owner=owner;
-         this.achievementData;
         
     }
 }
+
+module.exports = Achievement;

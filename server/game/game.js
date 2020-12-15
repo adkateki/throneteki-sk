@@ -551,14 +551,22 @@ class Game extends EventEmitter {
         this.configService = ServiceFactory.configService();
         let db = monk(this.configService.getValue('dbPath'));
         let achievementService = ServiceFactory.achievementService(db);
+/*
         achievementService.getAnyAchievements().then(result=> {
            for(let achievementEntry of result){
              let achievementClass = achievements[achievementEntry.code];
              let achievementObject = new achievementClass(this.winner);    
              if(achievementObject.check()){
+		let userAchievementService = ServiceFactory.userAchievementService(db);
+                userAchievementService.update({ username: this.winner, code: achievementEntry.code}).then(result=>{ 
+			}).catch(err => {
+			    logger.info(err);
+			});
              }
 	   }  
-	}
+	}).catch(err => {
+		logger.info(err);
+	});*/
         this.router.gameWon(this, reason, winner);
         this.queueStep(new GameWonPrompt(this, winner));
     }

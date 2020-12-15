@@ -5,6 +5,7 @@ const UserService = require('./UserService');
 const BanlistService = require('./BanlistService');
 const EventService = require('./EventService');
 const AchievementService = require('./AchievementService');
+const UserAchievementService = require('./UserAchievementService');
 
 let services = {};
 
@@ -57,5 +58,12 @@ module.exports = {
         }
 
         return services.achievementService;
+    },
+    userAchievementService: db => {
+	if(!services.userAchievementService) {
+            services.userAchievementService = new UserAchievementService(db);
+        }
+
+        return services.userAchievementService;
     }
 };

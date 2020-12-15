@@ -43,11 +43,10 @@ class UserAchievementService {
         let properties = {
             username: userAchievement.username,
             code: userAchievement.code,
-            progress: userAchievement.progress,
             lastUpdated: new Date()
         };
 
-        return this.userAchievements.update({ _id: userAchievement.id }, { '$set': properties });
+        return this.userAchievements.update({ _id: userAchievement.id }, { '$set': properties }, { '$inc': { progress: 1}});
     }
 
 }

@@ -5,3 +5,6 @@ class SonOfTheFirstMen extends Achievement {
         return !this.owner.agenda;
      }
 }
+
+SonOfTheFirstMen.code='00001';
+module.exports = SonOfTheFirstMen;
