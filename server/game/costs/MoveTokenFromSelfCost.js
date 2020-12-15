@@ -37,9 +37,10 @@ class MoveTokenFromSelfCost {
 
     pay(context) {
         let destinationCard = context.getCostValuesFor(this.name)[0];
-
+        
         context.source.modifyToken(this.token, -this.amount);
         destinationCard.modifyToken(this.token, this.amount);
+        context.game.raiseEvent('onGoldTransferred', { source: context.source, target: destinationCard, amount: this.amount});
     }
 }
 

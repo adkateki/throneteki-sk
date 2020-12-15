@@ -1,4 +1,5 @@
 const AgendaCard = require('../../agendacard.js');
+const {Tokens} = require('../../Constants');
 
 class Moonsingers extends AgendaCard {
     setupCardAbilities(ability) {
@@ -6,19 +7,20 @@ class Moonsingers extends AgendaCard {
             when: {
                 onTokenPlaced: event => {
 			     this.eventTokenCard=event.card;
+                             this.eventToken=event.token;
 			     return event.source.controller === this.controller && event.card.tokens[event.token]<3;
 
 			},
                 onGoldTransferred: event => { 
-                        this.eventToken='gold';
+                        this.eventToken=Tokens.gold;
 			if( event.target.getGameElementType() === 'card'){ 
                                  if(event.source.getGameElementType() === 'player'){
                                      this.eventTokenCard=event.target;
-				     return (event.source===this.controller && event.target.tokens['gold']<3);
+				     return (event.source===this.controller && event.target.tokens[Tokens.gold]<3);
 				 }
                                 else{
 				     this.eventTokenCard=event.target;
-                                     return event.source.controller === this.controller && event.target.tokens['gold']<3;
+                                     return event.source.controller === this.controller && event.target.tokens[Tokens.gold]<3;
                                  }
                         }
 			
