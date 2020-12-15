@@ -4,12 +4,31 @@ class Moonsingers extends AgendaCard {
     setupCardAbilities(ability) {
         this.reaction({
             when: {
-                onTokenPlaced: event => event.source.controller === this.controller && event.card.tokens[event.token]<3
+                onTokenPlaced: event => {
+			     this.eventTokenCard=event.card;
+			     return event.source.controller === this.controller && event.card.tokens[event.token]<3;
+
+			},
+                onGoldTransferred: event => { 
+                        this.eventToken='gold';
+			if( event.target.getGameElementType() === 'card'){ 
+                                 if(event.source.getGameElementType() === 'player'){
+                                     this.eventTokenCard=event.target;
+				     return (event.source===this.controller && event.target.tokens['gold']<3);
+				 }
+                                else{
+				     this.eventTokenCard=event.target;
+                                     return event.source.controller === this.controller && event.target.tokens['gold']<3;
+                                 }
+                        }
+			
+                        return false;
+                }
             },
             cost: ability.costs.kneelFactionCard(),
             handler: context => {
-                let tokenCard=context.event.card;
-                let tokenType=context.event.token;
+                let tokenCard=this.eventTokenCard;
+                let tokenType=this.eventToken;
 	        tokenCard.modifyToken(tokenType, 2);
                 this.game.addMessage('{0} uses {1} to place two extra tokens on {2}', this.controller, this, tokenCard);
             }

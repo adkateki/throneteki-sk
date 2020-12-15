@@ -12,7 +12,7 @@ class VargoHoat extends DrawCard {
             },
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(context => ({ card: context.event.card, token: Tokens.gold })),
+                    GameActions.placeToken(context => ({ card: context.event.card, token: Tokens.gold, source: this })),
                     context
                 );
                 this.game.addMessage('{0} uses {1} to have {2} gain 1 gold',
