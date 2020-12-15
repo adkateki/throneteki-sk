@@ -12,14 +12,20 @@ class HightowerSpy extends DrawCard {
             handler: context => {
                 let topCard = this.controller.drawDeck[0];
                 let increase = topCard.getPrintedCost();
+                if (isNaN(increase)){
+                     this.game.addMessage('{0} uses {1} to reveal {2}. No strenght is modified because of undefined cost',
+			context.player, this, topCard, context.target, increase);
+                }
+                else{
+		    this.untilEndOfPhase(ability => ({
+			match: context.target,
+			effect: ability.effects.modifyStrength(increase)
+		    }));
 
-                this.untilEndOfPhase(ability => ({
-                    match: context.target,
-                    effect: ability.effects.modifyStrength(increase)
-                }));
+		    this.game.addMessage('{0} uses {1} to reveal {2} and give {3} +{4} STR until the end of the phase',
+			context.player, this, topCard, context.target, increase);
+                }
 
-                this.game.addMessage('{0} uses {1} to reveal {2} and give {3} +{4} STR until the end of the phase',
-                    context.player, this, topCard, context.target, increase);
             }
         });
     }

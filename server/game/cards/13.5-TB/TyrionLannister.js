@@ -1,6 +1,6 @@
 const DrawCard = require('../../drawcard');
 const {Tokens} = require('../../Constants');
-
+const GameActions = require('../../GameActions');
 class TyrionLannister extends DrawCard {
     setupCardAbilities(ability) {
         this.reaction({
@@ -17,7 +17,10 @@ class TyrionLannister extends DrawCard {
             handler: context => {
                 this.game.addMessage('{0} uses {1} to put {2} into shadow', context.player, this, context.target);
                 context.player.putIntoShadows(context.target, false, () => {
-                    context.target.modifyToken(Tokens.shadow, 1);
+		    this.game.resolveGameAction(
+			GameActions.placeToken(() => ({ card: context.target, token: Tokens.shadow, source: this })),
+			context
+		    );
                     
                     this.lastingEffect(ability => ({
                         condition: () => context.target.location === 'shadows',

@@ -29,7 +29,8 @@ class AryaStark extends DrawCard {
                     GameActions.simultaneously(
                         context.target.map(card => GameActions.placeToken({
                             card,
-                            token: Tokens.prayer
+                            token: Tokens.prayer,
+			    source: this
                         }))
                     ),
                     context

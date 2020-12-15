@@ -28,7 +28,7 @@ class SeaOfBlood extends AgendaCard {
             message: '{player} uses {source} and kneels their faction card to place 1 blood token on {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.blood })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.blood, source: this })),
                     context
                 );
                 this.game.promptForDeckSearch(this.controller, {

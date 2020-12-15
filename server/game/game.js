@@ -91,8 +91,12 @@ class Game extends EventEmitter {
         this.skipPhase = {};
         this.cardVisibility = new CardVisibility(this);
         this.winnerOfDominanceInLastRound = undefined;
+        this.winnerOfDominance = undefined;
         this.prizedKeywordListener = new PrizedKeywordListener(this);
         this.muteSpectators = details.muteSpectators;
+	this.reserve = {
+            isApplying: false,
+        }
 
         for(let player of Object.values(details.players || {})) {
             this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, this);
@@ -343,9 +347,8 @@ class Game extends EventEmitter {
             case 'active plot':
                 this.callCardMenuCommand(player.activePlot, player, menuItem);
                 break;
+            //agenda and play area can behave the same now as the alliance agenda allows you to have more than one agenda card that are clickable
             case 'agenda':
-                this.callCardMenuCommand(player.agenda, player, menuItem);
-                break;
             case 'play area':
                 if(card.controller !== player && !menuItem.anyPlayer) {
                     return;

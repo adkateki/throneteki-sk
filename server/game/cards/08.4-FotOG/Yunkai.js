@@ -1,5 +1,6 @@
 const DrawCard = require('../../drawcard.js');
 const {Tokens} = require('../../Constants');
+const GameActions = require('../../GameActions');
 
 class Yunkai extends DrawCard {
     setupCardAbilities(ability) {
@@ -30,8 +31,10 @@ class Yunkai extends DrawCard {
         if(challenge.winner !== this.controller || this.location !== 'play area') {
             return;
         }
-
-        this.modifyToken(Tokens.gold, 2);
+	this.game.resolveGameAction(
+	    GameActions.placeToken(() => ({ card: this, token: Tokens.gold, amount: 2, source: this })),
+	    context
+	);
         this.game.addMessage('{0} places 2 gold tokens from the treasury on {1}', this.controller, this);
     }
 

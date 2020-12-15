@@ -26,7 +26,8 @@ class JaqenHGhar extends DrawCard {
                     GameActions.simultaneously(
                         context.target.map(card => GameActions.placeToken({
                             card,
-                            token: Tokens.valarmorghulis
+                            token: Tokens.valarmorghulis,
+                            source: this
                         }))
                     ),
                     context

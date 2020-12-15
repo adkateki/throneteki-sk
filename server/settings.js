@@ -1,12 +1,12 @@
 const defaultWindows = {
-    plot: false,
-    draw: false,
-    challengeBegin: false,
+    plot: true,
+    draw: true,
+    challengeBegin: true,
     attackersDeclared: true,
     defendersDeclared: true,
-    dominance: false,
-    standing: false,
-    taxation: false
+    dominance: true,
+    standing: true,
+    taxation: true
 };
 
 const defaultKeywordSettings = {

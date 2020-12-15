@@ -13,7 +13,8 @@ class Meadowlark extends DrawCard {
                 this.game.resolveGameAction(
                     GameActions.placeToken({
                         card: this,
-                        token: Tokens.journey
+                        token: Tokens.journey,
+			source: this
                     }),
                     context
                 );

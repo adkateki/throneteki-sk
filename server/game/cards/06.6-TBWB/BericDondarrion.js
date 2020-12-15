@@ -17,7 +17,7 @@ class BericDondarrion extends DrawCard {
             message: '{player} is forced to place 6 kiss tokens on {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.kiss, amount: 6 })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.kiss, amount: 6, source: this })),
                     context
                 );
             }

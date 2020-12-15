@@ -11,7 +11,7 @@ class TheBoneway extends DrawCard {
             message: '{player} uses {source} to place 1 vengeance token on {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.vengeance })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.vengeance, source: this })),
                     context
                 );
             }
