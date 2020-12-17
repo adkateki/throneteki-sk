@@ -38,6 +38,11 @@ const GameActions = require('./GameActions');
 const TimeLimit = require('./timeLimit.js');
 const PrizedKeywordListener = require('./PrizedKeywordListener');
 const GameWonPrompt = require('./gamesteps/GameWonPrompt');
+const monk = require('monk');
+const ServiceFactory = require('../services/ServiceFactory.js');
+const achievements = require('./achievements');
+const Achievement = require('./achievement.js'); 
+const logger = require('../log');
 
 class Game extends EventEmitter {
     constructor(details, options = {}) {
@@ -548,8 +553,37 @@ class Game extends EventEmitter {
         this.finishedAt = new Date();
         this.winReason = reason;
 
+        this.configService = ServiceFactory.configService();
+        let db = monk(this.configService.getValue('dbPath'));
+        let achievementService = ServiceFactory.achievementService(db);
+        let userAchievementService = ServiceFactory.userAchievementService(db);
+        this.checkAnyAchievements(achievementService, userAchievementService, winner);
         this.router.gameWon(this, reason, winner);
         this.queueStep(new GameWonPrompt(this, winner));
+    }
+
+    checkAnyAchievements(achievementService, userAchievementService, winner){
+        achievementService.getAnyAchievements().then(result=> {
+           for(let achievementEntry of result){
+               logger.info(achievementEntry.code);
+	       let achievementClass = achievements[achievementEntry.code] || Achievement;
+	       let achievementObject = new achievementClass(this.winner);    
+	       if(achievementObject.check()){
+		  userAchievementService.findOneAndUpdate({ username: this.winner.user.username, code: achievementEntry.code}).then(result=>{ 
+		              if(result.progress==achievementEntry.target){
+				this.addAlert('success', '{0} has completed \"{1}\" achievement!', winner, achievementEntry.name);
+			      }
+                              logger.info(result);
+                              logger.info(achievementEntry.target);
+                              
+			  }).catch(err => {
+			      logger.info(err);
+			  });
+	       }
+	   }  
+	}).catch(err => {
+		logger.info(err);
+	});
     }
 
     changeStat(playerName, stat, value) {

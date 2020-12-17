@@ -4,6 +4,8 @@ const decks = require('./decks');
 const cards = require('./cards');
 const news = require('./news');
 const user = require('./user');
+const achievements = require('./achievements');
+const userachievements = require('./userachievements');
 const messages = require('./messages');
 const banlist = require('./banlist');
 
@@ -16,4 +18,6 @@ module.exports.init = function(server, options) {
     messages.init(server, options);
     banlist.init(server, options);
     events.init(server, options);
+    achievements.init(server, options);
+    userachievements.init(server, options);
 };
