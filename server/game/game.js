@@ -38,6 +38,7 @@ const GameActions = require('./GameActions');
 const TimeLimit = require('./timeLimit.js');
 const PrizedKeywordListener = require('./PrizedKeywordListener');
 const GameWonPrompt = require('./gamesteps/GameWonPrompt');
+const ReportPrompt = require('./gamesteps/ReportPrompt');
 const monk = require('monk');
 const ServiceFactory = require('../services/ServiceFactory.js');
 const achievements = require('./achievements');
@@ -553,13 +554,22 @@ class Game extends EventEmitter {
         this.finishedAt = new Date();
         this.winReason = reason;
 
+        
+        this.router.gameWon(this, reason, winner);
+        this.queueStep(new GameWonPrompt(this, winner));
+    }
+    report(){
+        this.reported = true;
         this.configService = ServiceFactory.configService();
         let db = monk(this.configService.getValue('dbPath'));
         let achievementService = ServiceFactory.achievementService(db);
         let userAchievementService = ServiceFactory.userAchievementService(db);
-        this.checkAnyAchievements(achievementService, userAchievementService, winner);
-        this.router.gameWon(this, reason, winner);
-        this.queueStep(new GameWonPrompt(this, winner));
+        this.checkAnyAchievements(achievementService, userAchievementService, this.winner);
+    }
+    
+    reportPrompt(player){
+       this.queueStep(new ReportPrompt(this, player));
+         
     }
 
     checkAnyAchievements(achievementService, userAchievementService, winner){

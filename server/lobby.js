@@ -586,9 +586,9 @@ class Lobby {
     onLeaveGame(socket) {
         let game = this.findGameForUser(socket.user.username);
         if(!game) {
+        logger.info('wat'); 
             return;
         }
-
         game.leave(socket.user.username);
         socket.send('cleargamestate');
         socket.leaveChannel(game.id);

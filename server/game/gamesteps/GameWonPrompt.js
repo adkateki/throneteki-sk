@@ -1,5 +1,6 @@
 const AllPlayerPrompt = require('./allplayerprompt');
 const RematchPrompt = require('./RematchPrompt');
+const ReportPrompt = require('./ReportPrompt');
 
 class GameWonPrompt extends AllPlayerPrompt {
     constructor(game, winner) {
@@ -18,23 +19,38 @@ class GameWonPrompt extends AllPlayerPrompt {
             menuTitle: this.winner === null ? 'Game ends in a draw' : this.winner.name + ' has won the game!',
             buttons: [
                 { arg: 'continue', text: 'Continue Playing' },
-                { arg: 'rematch', text: 'Rematch' }
+                { arg: this.game.getNumberOfPlayers()>1 && !this.isTourney ? 'report' : 'rematch', text: this.game.getNumberOfPlayers()>1 && !this.isTourney ? 'Report the game' : 'Rematch' }
             ]
         };
     }
 
     waitingPrompt() {
-        return { menuTitle: 'Waiting for opponent to choose to continue' };
+        return { menuTitle: this.game.getPlayers().filter(player=>!player.left)<2 ? 'Waiting for opponent to choose to continue' : 'No opponent on the other side' };
     }
 
     onMenuCommand(player, arg) {
-        let message = arg === 'continue' ? 'to continue' : 'a rematch';
-        this.game.addMessage('{0} would like {1}', player, message);
 
         this.clickedButton[player.name] = true;
 
         if(arg === 'rematch') {
+            this.game.addMessage('{0} would like a rematch', player);
             this.game.queueStep(new RematchPrompt(this.game, player));
+
+            return true;
+        }
+        if(arg === 'report') {
+            this.game.addMessage('{0} would like to report', player);
+            if(this.game.getPlayers().filter(player => !player.left )==1){
+               !this.game.reported && this.game.queueStep(new ReportPrompt(this.game, player));
+	    }
+            else{
+               !this.game.reported && this.game.report();
+            }
+
+            return true;
+        }
+        if(arg === 'continue') {
+            this.game.addMessage('{0} would like to continue.', player);
 
             return true;
         }

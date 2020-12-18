@@ -376,10 +376,11 @@ class GameServer {
 
     onLeaveGame(socket) {
         var game = this.findGameForUser(socket.user.username);
+        
         if(!game) {
             return;
         }
-
+        
         let player = game.playersAndSpectators[socket.user.username];
         let isSpectator = player.isSpectator();
 
@@ -395,6 +396,11 @@ class GameServer {
         socket.send('cleargamestate');
         socket.leaveChannel(game.id);
 
+        if(!isSpectator){
+            let remainingPlayers=game.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
+            remainingPlayers.forEach( player => game.recordWinner(player,'concede'));    
+        
+        }
         if(game.isEmpty()) {
             delete this.games[game.id];
 
@@ -410,6 +416,7 @@ class GameServer {
         if(!game) {
             return;
         }
+        
 
         if(command === 'leavegame') {
             return this.onLeaveGame(socket);
