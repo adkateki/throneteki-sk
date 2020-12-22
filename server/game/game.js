@@ -100,6 +100,7 @@ class Game extends EventEmitter {
         this.winnerOfDominance = undefined;
         this.prizedKeywordListener = new PrizedKeywordListener(this);
         this.muteSpectators = details.muteSpectators;
+        this.headless = details.headless;
 	this.reserve = {
             isApplying: false,
         }
@@ -554,7 +555,8 @@ class Game extends EventEmitter {
         this.finishedAt = new Date();
         this.winReason = reason;
 
-        
+        logger.info('onGameWon game'); 
+        this.emit('onGameWon', this.winner);
         this.router.gameWon(this, reason, winner);
         this.queueStep(new GameWonPrompt(this, winner));
     }
@@ -1359,7 +1361,7 @@ class Game extends EventEmitter {
 
     getSummary(activePlayerName, options = {}) {
         var playerSummaries = {};
-
+        logger.info('gameSummary');
         for(let player of this.getPlayers()) {
             var deck = undefined;
             if(player.left) {
@@ -1408,7 +1410,8 @@ class Game extends EventEmitter {
                 };
             }),
             muteSpectators: this.muteSpectators,
-            useChessClocks: this.useChessClocks
+            useChessClocks: this.useChessClocks,
+            winner: this.winner
         };
     }
 

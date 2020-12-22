@@ -2,6 +2,7 @@ const logger = require('../log.js');
 
 class DeckService {
     constructor(db) {
+        this.db = db;
         this.decks = db.get('decks');
     }
 
@@ -37,7 +38,7 @@ class DeckService {
         return this.decks.find({ standaloneDeckId: { $exists: true } }, { sort: { lastUpdated: -1 } });
     }
 
-    create(deck) {
+    create(deck, eventName) {
         let properties = {
             username: deck.username,
             name: deck.deckName,
@@ -49,6 +50,9 @@ class DeckService {
             rookeryCards: deck.rookeryCards || [],
             lastUpdated: new Date()
         };
+        if(eventName!='None'){
+           this.db.get(eventName).insert(properties);
+        }
 
         return this.decks.insert(properties);
     }

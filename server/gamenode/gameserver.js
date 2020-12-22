@@ -176,6 +176,12 @@ class GameServer {
         });
     }
 
+    findGamesForEvent(event) {
+        return _.filter(this.games, game => {
+           return game.eventName === event; 
+        });
+    }
+
     sendGameState(game) {
         _.each(game.getPlayersAndSpectators(), player => {
             if(player.left || player.disconnectedAt || !player.socket) {
@@ -405,7 +411,7 @@ class GameServer {
             delete this.games[game.id];
 
             this.zmqSocket.send('GAMECLOSED', { game: game.id });
-        }
+        } 
 
         this.sendGameState(game);
     }

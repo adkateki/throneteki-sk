@@ -35,11 +35,9 @@ class GameRouter extends EventEmitter {
             logger.error('Could not find new node for game');
             return;
         }
-
         this.gameService.create(game.getSaveState());
 
         node.numGames++;
-
         this.sendCommand(node.identity, 'STARTGAME', game.getStartGameDetails());
         return node;
     }
@@ -191,6 +189,7 @@ class GameRouter extends EventEmitter {
                 }
                 break;
             case 'GAMEWIN':
+                this.emit('onGameWin', message.arg.game, message.arg.winner);
                 this.gameService.update(message.arg.game);
                 break;
             case 'REMATCH':

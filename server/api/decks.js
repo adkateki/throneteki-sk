@@ -49,7 +49,7 @@ module.exports.init = function(server, options) {
 
     server.post('/api/decks', passport.authenticate('jwt', { session: false }), wrapAsync(async function(req, res) {
         let deck = Object.assign(req.body.deck, { username: req.user.username });
-        await deckService.create(deck);
+        await deckService.create(deck, req.body.eventName);
         res.send({ success: true });
     }));
 

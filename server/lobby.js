@@ -35,6 +35,7 @@ class Lobby {
         this.router.on('onWorkerTimedOut', this.onWorkerTimedOut.bind(this));
         this.router.on('onNodeReconnected', this.onNodeReconnected.bind(this));
         this.router.on('onWorkerStarted', this.onWorkerStarted.bind(this));
+        this.router.on('onGameWin', this.onGameWin.bind(this));
 
         this.userService.on('onBlocklistChanged', this.onBlocklistChanged.bind(this));
 
@@ -116,6 +117,12 @@ class Lobby {
             }
 
             return true;
+        });
+    }
+
+   findGamesForEvent(eventName) {
+        return Object.values(this.games).filter(game => {
+              return game.event.name == eventName;
         });
     }
 
@@ -208,6 +215,7 @@ class Lobby {
     }
 
     broadcastGameMessage(message, games) {
+        
         if(!Array.isArray(games)) {
             games = [games];
         }
@@ -310,6 +318,7 @@ class Lobby {
 
         socket.registerEvent('lobbychat', this.onLobbyChat.bind(this));
         socket.registerEvent('newgame', this.onNewGame.bind(this));
+        socket.registerEvent('neweventgames', this.onNewEventGames.bind(this));
         socket.registerEvent('joingame', this.onJoinGame.bind(this));
         socket.registerEvent('leavegame', this.onLeaveGame.bind(this));
         socket.registerEvent('watchgame', this.onWatchGame.bind(this));
@@ -318,6 +327,7 @@ class Lobby {
         socket.registerEvent('selectdeck', this.onSelectDeck.bind(this));
         socket.registerEvent('connectfailed', this.onConnectFailed.bind(this));
         socket.registerEvent('removegame', this.onRemoveGame.bind(this));
+        socket.registerEvent('removeeventgames', this.onRemoveEventGames.bind(this));
         socket.registerEvent('clearsessions', this.onClearSessions.bind(this));
         socket.registerEvent('getnodestatus', this.onGetNodeStatus.bind(this));
         socket.registerEvent('togglenode', this.onToggleNode.bind(this));
@@ -480,6 +490,69 @@ class Lobby {
         });
     }
 
+    onNewEventGames(socket, gameDetails) {
+        let existingGame = this.findGameForUser(socket.user.username);
+        if(existingGame) {
+            return;
+        }
+
+        if(gameDetails.quickJoin) {
+            let sortedGames = sortBy(Object.values(this.games), game => game.createdAt);
+            let gameToJoin = sortedGames.find(game => !game.started && game.gameType === gameDetails.gameType && Object.values(game.players).length < 2 && !game.password);
+
+            if(gameToJoin) {
+                let message = gameToJoin.join(socket.id, socket.user);
+                if(message) {
+                    socket.send('passworderror', message);
+
+                    return;
+                }
+
+                socket.joinChannel(gameToJoin.id);
+
+                this.sendGameState(gameToJoin);
+
+                this.broadcastGameMessage('updategame', gameToJoin);
+
+                return;
+            }
+        }
+
+        const restrictedListsResult = this.cardService.getRestrictedList();
+        const eventResult = gameDetails.eventId === 'none' ? Promise.resolve({ _id: 'none' }) : this.eventService.getEventById(gameDetails.eventId);
+
+        return Promise.all([eventResult, restrictedListsResult]).then(([event, restrictedLists]) => {
+            const defaultRestrictedList = restrictedLists[0];
+            let restrictedList;
+
+            //when there is no event chosen for the game, use the restricted list that was chosen or the default restricted list (first one in the list)
+            if(gameDetails.eventId === 'none') {
+                restrictedList = restrictedLists.find(restrictedList => restrictedList._id === gameDetails.restrictedListId) || defaultRestrictedList;
+            //when there is an event chosen for the game, check if the event uses a custom or a default restricted list
+            } else {
+                if(event.useDefaultRestrictedList && event.defaultRestrictedList) {
+                    restrictedList = restrictedLists.find(restrictedList => restrictedList.name === event.defaultRestrictedList) || defaultRestrictedList;
+                } else {
+                    restrictedList = restrictedLists.find(restrictedList => restrictedList.name === event.name) || defaultRestrictedList;
+                }
+            }
+            for( let step=0; step<gameDetails.numberOfGames; step++){
+                let tableNumber=gameDetails.numberOfGames-step;
+                let gameDetailsWithName = Object.assign({ name: "Table "+tableNumber}, gameDetails);
+                let game = new PendingGame(socket.user, {event, restrictedList, ...gameDetailsWithName});
+		//socket.joinChannel(game.id);
+		this.sendGameState(game);
+
+		this.games[game.id] = game;
+		this.broadcastGameMessage('newgame', game);
+            }
+            //game.newGame(socket.id, socket.user, gameDetails.password);
+
+
+        });
+    }
+
+
     onJoinGame(socket, gameId, password) {
         let existingGame = this.findGameForUser(socket.user.username);
         if(existingGame) {
@@ -490,12 +563,15 @@ class Lobby {
         if(!game) {
             return;
         }
-
+        if(Object.keys(game.players).length==0) {
+            game.owner = socket.user;
+        }
         let message = game.join(socket.id, socket.user, password);
         if(message) {
             socket.send('passworderror', message);
             return;
         }
+
 
         socket.joinChannel(game.id);
 
@@ -585,19 +661,13 @@ class Lobby {
 
     onLeaveGame(socket) {
         let game = this.findGameForUser(socket.user.username);
-        if(!game) {
-        logger.info('wat'); 
-            return;
-        }
         game.leave(socket.user.username);
         socket.send('cleargamestate');
         socket.leaveChannel(game.id);
 
-        if(game.isEmpty()) {
-            this.broadcastGameMessage('removegame', game);
+        if(game.isEmpty() && !game.headless) {
             delete this.games[game.id];
         } else {
-            this.broadcastGameMessage('updategame', game);
             this.sendGameState(game);
         }
     }
@@ -680,6 +750,25 @@ class Lobby {
         } else {
             this.router.closeGame(game);
         }
+        this.broadcastGameMessage('removegame', game);
+    }
+
+    onRemoveEventGames(socket, eventName) {
+        logger.info('onRemoveEventGames');
+        if(!socket.user.permissions.canManageGames) {
+            return;
+        }
+        let games = this.findGamesForEvent(eventName);
+        if(!games) {
+            logger.info('no event games');
+            return;
+        }
+        
+        games.map(game => {
+             this.onRemoveGame(socket, game.id);
+        });
+        
+
     }
 
     onGetNodeStatus(socket) {
@@ -737,9 +826,22 @@ class Lobby {
         if(!game) {
             return;
         }
+        if(!game.headless){
+          delete this.games[gameid];
+          this.broadcastgamemessage('removegame', game);
+        }else{
+          game.started = false;
+	}
+    }
 
-        delete this.games[gameId];
-        this.broadcastGameMessage('removegame', game);
+    onGameWin(gameState, winner) {
+        let game = this.games[gameState.gameId];
+        if(!game) {
+            return;
+        }
+        game.winner=winner;
+        this.broadcastGameMessage('updategame', game);
+        
     }
 
     onGameRematch(oldGame) {
@@ -829,7 +931,7 @@ class Lobby {
 
         game.leave(player);
 
-        if(game.isEmpty()) {
+        if(game.isEmpty() && !game.headless) {
             this.broadcastGameMessage('removegame', game);
             delete this.games[gameId];
         } else {

@@ -26,6 +26,8 @@ class PendingGame {
         this.muteSpectators = details.muteSpectators;
         this.useChessClocks = details.useChessClocks;
         this.chessClockTimeLimit = details.chessClockTimeLimit;
+        this.headless = details.headless;
+        this.winner = null;
     }
 
     // Getters
@@ -338,13 +340,15 @@ class PendingGame {
             gameTimeLimit: this.gameTimeLimit,
             muteSpectators: this.muteSpectators,
             useChessClocks: this.useChessClocks,
-            chessClockTimeLimit: this.chessClockTimeLimit
+            chessClockTimeLimit: this.chessClockTimeLimit,
+            headless: this.headless,
+            winner: this.winner
         };
     }
 
     getStartGameDetails() {
         const players = {};
-
+         
         for(let playerDetails of Object.values(this.players)) {
             const {name, user, ...rest} = playerDetails;
             players[name] = {
@@ -382,7 +386,9 @@ class PendingGame {
             gameTimeLimit: this.gameTimeLimit,
             muteSpectators: this.muteSpectators,
             useChessClocks: this.useChessClocks,
-            chessClockTimeLimit: this.chessClockTimeLimit
+            chessClockTimeLimit: this.chessClockTimeLimit,
+            headless: this.headless
+           
         };
     }
 }
