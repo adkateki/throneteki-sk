@@ -77,6 +77,7 @@ class Player extends Spectator {
         this.mustChooseAsClaim = [];
         this.plotRevealRestrictions = [];
         this.mustRevealPlot = undefined;
+        this.mustReport = true;
         this.promptedActionWindows = user.promptedActionWindows;
         this.promptDupes = user.settings.promptDupes;
         this.timerSettings = user.settings.timerSettings || {};

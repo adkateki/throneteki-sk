@@ -36,6 +36,7 @@ class Lobby {
         this.router.on('onNodeReconnected', this.onNodeReconnected.bind(this));
         this.router.on('onWorkerStarted', this.onWorkerStarted.bind(this));
         this.router.on('onGameWin', this.onGameWin.bind(this));
+        this.router.on('onGameReport', this.onGameReport.bind(this));
 
         this.userService.on('onBlocklistChanged', this.onBlocklistChanged.bind(this));
 
@@ -266,7 +267,6 @@ class Lobby {
                 logger.info('Wanted to send to ', player.id, ' but have no socket');
                 continue;
             }
-
             this.sockets[player.id].send('gamestate', game.getSummary(player.name));
         }
     }
@@ -328,6 +328,7 @@ class Lobby {
         socket.registerEvent('connectfailed', this.onConnectFailed.bind(this));
         socket.registerEvent('removegame', this.onRemoveGame.bind(this));
         socket.registerEvent('removeeventgames', this.onRemoveEventGames.bind(this));
+        socket.registerEvent('eventedited', this.onEventEdited.bind(this));
         socket.registerEvent('clearsessions', this.onClearSessions.bind(this));
         socket.registerEvent('getnodestatus', this.onGetNodeStatus.bind(this));
         socket.registerEvent('togglenode', this.onToggleNode.bind(this));
@@ -558,7 +559,6 @@ class Lobby {
         if(existingGame) {
             return;
         }
-
         let game = this.games[gameId];
         if(!game) {
             return;
@@ -661,15 +661,34 @@ class Lobby {
 
     onLeaveGame(socket) {
         let game = this.findGameForUser(socket.user.username);
+        if(!game) {
+            return;
+        } 
         game.leave(socket.user.username);
         socket.send('cleargamestate');
         socket.leaveChannel(game.id);
-
-        if(game.isEmpty() && !game.headless) {
-            delete this.games[game.id];
+        if(game.isEmpty()) {
+            if(!game.headless){
+                this.broadcastGameMessage('removegame', game);
+                delete this.games[game.id];
+            } else {
+                game.started = false;
+                this.broadcastGameMessage('updategame', game);
+                this.sendGameState(game);               
+            }
+             
         } else {
+            this.broadcastGameMessage('updategame', game);
             this.sendGameState(game);
         }
+    }
+
+    onEventEdited(socket, event_id) {
+//this.find
+        if(!event_id){
+          return;
+        }
+        this.broadcastGameMessage('updateevent', event_id);
     }
 
     onPendingGameChat(socket, message) {
@@ -823,14 +842,17 @@ class Lobby {
     onGameClosed(gameId) {
         let game = this.games[gameId];
 
-        if(!game) {
+        if(!game || !gameId) {
             return;
         }
         if(!game.headless){
           delete this.games[gameid];
-          this.broadcastgamemessage('removegame', game);
+          this.broadcastGameMessage('removegame', game);
         }else{
           game.started = false;
+          
+          Object.values(game.getPlayers()).map(player=>game.leave(player.name));
+          this.broadcastGameMessage('updategame', game);
 	}
     }
 
@@ -843,6 +865,17 @@ class Lobby {
         this.broadcastGameMessage('updategame', game);
         
     }
+
+    onGameReport(gameState, isReported) {
+        let game = this.games[gameState.gameId];
+        if(!game) {
+            return;
+        }
+        game.isReported=isReported;
+        this.broadcastGameMessage('updategame', game);
+    }
+
+
 
     onGameRematch(oldGame) {
         let gameId = oldGame.gameId;
@@ -930,13 +963,19 @@ class Lobby {
         }
 
         game.leave(player);
-
-        if(game.isEmpty() && !game.headless) {
-            this.broadcastGameMessage('removegame', game);
-            delete this.games[gameId];
+        if(game.isEmpty()) {
+            if(!game.headless){
+                this.broadcastGameMessage('removegame', game);
+                delete this.games[game.id];
+            } else {
+                game.started = false;
+                this.broadcastGameMessage('updategame', game);
+            }
+             
         } else {
             this.broadcastGameMessage('updategame', game);
         }
+
     }
 
     onClearSessions(socket, username) {

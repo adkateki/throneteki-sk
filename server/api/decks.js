@@ -1,5 +1,6 @@
 const passport = require('passport');
 
+const logger = require('../log.js');
 const DeckService = require('../services/DeckService.js');
 const { wrapAsync } = require('../util.js');
 
@@ -25,13 +26,43 @@ module.exports.init = function(server, options) {
     }));
 
     server.get('/api/decks', passport.authenticate('jwt', { session: false }), wrapAsync(async function(req, res) {
+        
+
         let decks = await deckService.findByUserName(req.user.username);
         res.send({ success: true, decks: decks });
     }));
 
-    server.put('/api/decks/:id', passport.authenticate('jwt', { session: false }), wrapAsync(async function(req, res) {
-        let deck = await deckService.getById(req.params.id);
+    server.get('/api/decks/events/:eventid', passport.authenticate('jwt', { session: false }), wrapAsync(async function(req, res) {
+        if(!req.params.eventid || req.params.eventid === '') {
+            return res.status(404).send({ message: 'No such event' });
+        }
+        let decks = await deckService.findByUserName(req.user.username, req.params.eventid);
+        res.send({ success: true, decks: decks });
+    }));
 
+    server.get('/api/decks/events/:eventid/:id', passport.authenticate('jwt', { session: false }), wrapAsync(async function(req, res) {
+        if(!req.params.eventid || req.params.eventid === '') {
+            return res.status(404).send({ message: 'No such event' });
+        }
+        if(!req.params.id || req.params.id === '') {
+            return res.status(404).send({ message: 'No such deck' });
+        }
+
+        let deck = await deckService.getById(req.params.id, req.params.eventid);
+
+        if(!deck) {
+            return res.status(404).send({ message: 'No such deck' });
+        }
+
+        if(deck.username !== req.user.username) {
+            return res.status(401).send({ message: 'Unauthorized' });
+        }
+
+        res.send({ success: true, deck: deck });
+    }));
+
+    server.put('/api/decks/:id', passport.authenticate('jwt', { session: false }), wrapAsync(async function(req, res) {
+        let deck = await deckService.getById(req.params.id, req.body.eventName);
         if(!deck) {
             return res.status(404).send({ message: 'No such deck' });
         }
@@ -42,7 +73,7 @@ module.exports.init = function(server, options) {
 
         let data = Object.assign({ id: req.params.id }, req.body.deck);
 
-        deckService.update(data);
+        deckService.update(data, req.body.eventName);
 
         res.send({ success: true, message: 'Saved' });
     }));
@@ -67,6 +98,29 @@ module.exports.init = function(server, options) {
         }
 
         await deckService.delete(id);
+        res.send({ success: true, message: 'Deck deleted successfully', deckId: id });
+    }));
+
+    server.delete('/api/decks/events/:eventid/:id', passport.authenticate('jwt', { session: false }), wrapAsync(async function(req, res) {
+        if(!req.params.eventid || req.params.eventid === '') {
+            return res.status(404).send({ message: 'No such event' });
+        }
+        if(!req.params.id || req.params.id === '') {
+            return res.status(404).send({ message: 'No such deck' });
+        }
+        let id = req.params.id;
+
+        let deck = await deckService.getById(id, req.params.eventid);
+
+        if(!deck) {
+            return res.status(404).send({ success: false, message: 'No such deck' });
+        }
+
+        if(deck.username !== req.user.username) {
+            return res.status(401).send({ message: 'Unauthorized' });
+        }
+
+        await deckService.delete(id, req.params.eventid);
         res.send({ success: true, message: 'Deck deleted successfully', deckId: id });
     }));
 

@@ -22,7 +22,8 @@ class GameService {
             players: game.players,
             winner: game.winner,
             winReason: game.winReason,
-            finishedAt: game.finishedAt
+            finishedAt: game.finishedAt,
+            isReported: game.isReported
         };
         return this.games.update({ gameId: game.gameId }, { '$set': properties })
             .catch(err => {

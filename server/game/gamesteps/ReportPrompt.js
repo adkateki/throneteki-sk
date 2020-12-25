@@ -34,7 +34,7 @@ class ReportPrompt extends AllPlayerPrompt {
             this.game.addAlert('info', '{0} agrees to report the game', player);
             this.completedPlayers.add(player);
         } else {
-            this.game.addAlert('info', '{0} would not like to report, wait for OP.', player);
+            this.game.addAlert('info', '{0} would not like to report, wait for TO.', player);
             this.cancelled = true;
         }
 

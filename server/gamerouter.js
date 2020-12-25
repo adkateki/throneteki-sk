@@ -192,6 +192,10 @@ class GameRouter extends EventEmitter {
                 this.emit('onGameWin', message.arg.game, message.arg.winner);
                 this.gameService.update(message.arg.game);
                 break;
+            case 'GAMEREPORT':
+                this.emit('onGameReport', message.arg.game, message.arg.isReported);
+                this.gameService.update(message.arg.game);
+                break;
             case 'REMATCH':
                 this.gameService.update(message.arg.game);
 

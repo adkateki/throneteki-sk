@@ -6,8 +6,12 @@ class DeckService {
         this.decks = db.get('decks');
     }
 
-    getById(id) {
-        return this.decks.findOne({ _id: id })
+    getById(id, eventName) {
+        let deckCollection=this.decks;
+        if(eventName && eventName!='None'){
+            deckCollection=this.db.get(eventName);
+        }
+        return deckCollection.findOne({ _id: id })
             .catch(err => {
                 logger.error('Unable to fetch deck', err);
                 throw new Error('Unable to fetch deck ' + id);
@@ -30,7 +34,10 @@ class DeckService {
             });
     }
 
-    findByUserName(userName) {
+    findByUserName(userName, eventName) {
+        if(eventName && eventName!='None'){
+          return this.db.get(eventName).find({ username: userName }, { sort: { lastUpdated: -1 } });
+        }
         return this.decks.find({ username: userName }, { sort: { lastUpdated: -1 } });
     }
 
@@ -50,7 +57,7 @@ class DeckService {
             rookeryCards: deck.rookeryCards || [],
             lastUpdated: new Date()
         };
-        if(eventName!='None'){
+        if(eventName && eventName!='None'){
            this.db.get(eventName).insert(properties);
         }
 
@@ -73,7 +80,7 @@ class DeckService {
         return this.decks.insert(properties);
     }
 
-    update(deck) {
+    update(deck, eventName) {
         let properties = {
             name: deck.deckName,
             plotCards: deck.plotCards,
@@ -84,12 +91,20 @@ class DeckService {
             rookeryCards: deck.rookeryCards || [],
             lastUpdated: new Date()
         };
+        if(eventName && eventName!='None'){
+           this.db.get(eventName).update({ _id: deck.id }, { '$set': properties });
+        }
 
         return this.decks.update({ _id: deck.id }, { '$set': properties });
     }
 
-    delete(id) {
-        return this.decks.remove({ _id: id });
+    delete(id, eventName) {
+        let deckCollection=this.decks;
+        logger.info('delete deck log');
+        if(eventName && eventName!='None'){
+            deckCollection=this.db.get(eventName);
+        }
+        return deckCollection.remove({ _id: id });
     }
 }
 

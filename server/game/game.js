@@ -50,6 +50,7 @@ class Game extends EventEmitter {
         super();
 
         this.event = details.event;
+        this.isReported = false;
         this.eventName = details.event && details.event.name;
         this.restrictedList = details.restrictedList;
         this.allCards = [];
@@ -508,6 +509,9 @@ class Game extends EventEmitter {
         }
 
         let players = this.getPlayers();
+        if(players.length === 1){
+            return;
+        }
         let deckedPlayers = players.filter(player => player.drawDeck.length === 0 && !player.lost);
 
         // TODO: When all remaining players are decked simultaneously, first
@@ -548,20 +552,25 @@ class Game extends EventEmitter {
         if(this.winner) {
             return;
         }
-
         this.addAlert('success', '{0} has won the game', winner);
+        if(this.headless && this.event._id !='none') this.addAlert('warning', 'Please click on "Report the game" button');
 
         this.winner = winner;
         this.finishedAt = new Date();
         this.winReason = reason;
 
-        logger.info('onGameWon game'); 
-        this.emit('onGameWon', this.winner);
         this.router.gameWon(this, reason, winner);
-        this.queueStep(new GameWonPrompt(this, winner));
+    //    if(this.event && this.event._id == 'none'){ 
+           this.queueStep(new GameWonPrompt(this, winner));
+    //    }else{
+    //       this.report();
+    //	}
     }
+
     report(){
-        this.reported = true;
+        
+        this.isReported = true;
+        this.router.gameReport(this, this.winReason, this.isReported);
         this.configService = ServiceFactory.configService();
         let db = monk(this.configService.getValue('dbPath'));
         let achievementService = ServiceFactory.achievementService(db);
@@ -577,16 +586,14 @@ class Game extends EventEmitter {
     checkAnyAchievements(achievementService, userAchievementService, winner){
         achievementService.getAnyAchievements().then(result=> {
            for(let achievementEntry of result){
-               logger.info(achievementEntry.code);
 	       let achievementClass = achievements[achievementEntry.code] || Achievement;
 	       let achievementObject = new achievementClass(this.winner);    
 	       if(achievementObject.check()){
 		  userAchievementService.findOneAndUpdate({ username: this.winner.user.username, code: achievementEntry.code}).then(result=>{ 
 		              if(result.progress==achievementEntry.target){
-				this.addAlert('success', '{0} has completed \"{1}\" achievement!', winner, achievementEntry.name);
+                                  this.addAlert('success', '{0} has completed \"{1}\" achievement!', winner, achievementEntry.name);
+                                  this.router.sendGameState(this);
 			      }
-                              logger.info(result);
-                              logger.info(achievementEntry.target);
                               
 			  }).catch(err => {
 			      logger.info(err);
@@ -1313,6 +1320,7 @@ class Game extends EventEmitter {
             startedAt: this.startedAt,
             players: players,
             winner: this.winner ? this.winner.name : undefined,
+            isReported: this.isReported,
             winReason: this.winReason,
             finishedAt: this.finishedAt
         };
@@ -1352,7 +1360,8 @@ class Game extends EventEmitter {
                 gameTimeLimitTime: this.timeLimit.timeLimitInMinutes,
                 muteSpectators: this.muteSpectators,
                 useChessClocks: this.useChessClocks,
-                chessClockTimeLimit: this.chessClockTimeLimit
+                chessClockTimeLimit: this.chessClockTimeLimit,
+                isReported: this.isReported
             };
         }
 
@@ -1361,7 +1370,6 @@ class Game extends EventEmitter {
 
     getSummary(activePlayerName, options = {}) {
         var playerSummaries = {};
-        logger.info('gameSummary');
         for(let player of this.getPlayers()) {
             var deck = undefined;
             if(player.left) {
@@ -1411,7 +1419,8 @@ class Game extends EventEmitter {
             }),
             muteSpectators: this.muteSpectators,
             useChessClocks: this.useChessClocks,
-            winner: this.winner
+            winner: this.winner,
+            isReported: this.isReported
         };
     }
 

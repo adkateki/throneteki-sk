@@ -28,6 +28,7 @@ class PendingGame {
         this.chessClockTimeLimit = details.chessClockTimeLimit;
         this.headless = details.headless;
         this.winner = null;
+        this.isReported = false;      
     }
 
     // Getters
@@ -139,7 +140,6 @@ class PendingGame {
                 return 'Incorrect game password';
             }
         }
-
         this.addPlayer(id, user);
         this.addMessage('{0} has joined the game', user.username);
     }
@@ -342,7 +342,8 @@ class PendingGame {
             useChessClocks: this.useChessClocks,
             chessClockTimeLimit: this.chessClockTimeLimit,
             headless: this.headless,
-            winner: this.winner
+            winner: this.winner,
+            isReported: this.isReported
         };
     }
 
@@ -387,7 +388,8 @@ class PendingGame {
             muteSpectators: this.muteSpectators,
             useChessClocks: this.useChessClocks,
             chessClockTimeLimit: this.chessClockTimeLimit,
-            headless: this.headless
+            headless: this.headless,
+            isReported: this.isReported
            
         };
     }

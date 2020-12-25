@@ -149,8 +149,10 @@ class GameServer {
 
         let emptyGames = Object.values(this.games).filter(game => game.isEmpty());
         for(let game of emptyGames) {
-            logger.info('closed empty game', game.id);
-            this.closeGame(game);
+            if(!game.headless){
+              logger.info('closed empty game', game.id);
+              this.closeGame(game);
+            }
         }
     }
 
@@ -209,7 +211,9 @@ class GameServer {
     gameWon(game, reason, winner) {
         this.zmqSocket.send('GAMEWIN', { game: game.getSaveState(), winner: winner.name, reason: reason });
     }
-
+    gameReport(game, isReported) {
+        this.zmqSocket.send('GAMEREPORT', { game: game.getSaveState(), isReported: isReported });
+    }
     rematch(game) {
         this.zmqSocket.send('REMATCH', { game: game.getSaveState() });
 
@@ -389,7 +393,6 @@ class GameServer {
         
         let player = game.playersAndSpectators[socket.user.username];
         let isSpectator = player.isSpectator();
-
         game.leave(socket.user.username);
 
         this.zmqSocket.send('PLAYERLEFT', {
@@ -408,9 +411,9 @@ class GameServer {
         
         }
         if(game.isEmpty()) {
-            delete this.games[game.id];
+                delete this.games[game.id];
+                this.zmqSocket.send('GAMECLOSED', { game: game.id });
 
-            this.zmqSocket.send('GAMECLOSED', { game: game.id });
         } 
 
         this.sendGameState(game);
