@@ -27,7 +27,6 @@ class AchievementService {
                 let achievements = {};
 
                 for(let achievement of result) {
-                    logger.info(achievement.code);
                     achievements[achievement.code] = achievement;
                 }
 

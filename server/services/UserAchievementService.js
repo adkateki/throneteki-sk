@@ -45,7 +45,6 @@ class UserAchievementService {
             code: userAchievement.code,
             lastUpdated: new Date()
         };
-	logger.info(userAchievement);
         return this.userAchievements.update({ username: userAchievement.username, code: userAchievement.code }, { '$set': properties , '$inc': { progress: 1} },{ upsert: true});
     }
     findOneAndUpdate(userAchievement) {
@@ -54,7 +53,6 @@ class UserAchievementService {
             code: userAchievement.code,
             lastUpdated: new Date()
         };
-	logger.info(userAchievement);
         return this.userAchievements.findOneAndUpdate({ username: userAchievement.username, code: userAchievement.code }, { '$set': properties , '$inc': { progress: 1} },{ upsert: true, returnNewDocument: true});
     }
 

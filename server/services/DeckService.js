@@ -100,7 +100,6 @@ class DeckService {
 
     delete(id, eventName) {
         let deckCollection=this.decks;
-        logger.info('delete deck log');
         if(eventName && eventName!='None'){
             deckCollection=this.db.get(eventName);
         }
