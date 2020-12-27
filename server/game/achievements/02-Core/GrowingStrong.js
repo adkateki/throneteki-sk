@@ -6,5 +6,5 @@ class GrowinStrong extends Achievement {
      }
 }
 
-GrowinStrong.code='00027';
+GrowinStrong.code='00026';
 module.exports = GrowinStrong;

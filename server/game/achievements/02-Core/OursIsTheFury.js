@@ -6,5 +6,5 @@ class OursIsTheFury extends Achievement {
      }
 }
 
-OursIsTheFury.code='00023';
+OursIsTheFury.code='00024';
 module.exports = OursIsTheFury;

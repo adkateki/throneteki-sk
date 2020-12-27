@@ -6,5 +6,5 @@ class FireAndBlood extends Achievement {
      }
 }
 
-FireAndBlood.code='00024';
+FireAndBlood.code='00023';
 module.exports = FireAndBlood;

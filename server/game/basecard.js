@@ -531,6 +531,9 @@ class BaseCard {
         if(menuActionPairs.length === 0) {
             return;
         }
+        if(this.location==='revealed plots'){
+            return;
+        } 
 
         return [
             { command: 'click', text: 'Select Card' }
