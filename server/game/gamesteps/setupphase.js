@@ -29,6 +29,7 @@ class SetupPhase extends Phase {
     announceFactionAndAgenda() {
         for(const player of this.game.getPlayers()) {
             player.createFactionAndAgenda();
+            this.game.addMessage('{0}of{1},{2}', player, player.faction, player.titles);
             this.game.addMessage('{0} announces they are playing as {1} with {2}', player, player.faction, player.agenda || 'no agenda');
         }
     }

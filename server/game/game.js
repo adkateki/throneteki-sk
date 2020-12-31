@@ -38,6 +38,7 @@ const GameActions = require('./GameActions');
 const TimeLimit = require('./timeLimit.js');
 const PrizedKeywordListener = require('./PrizedKeywordListener');
 const GameWonPrompt = require('./gamesteps/GameWonPrompt');
+const LeaveGamePrompt = require('./gamesteps/LeaveGamePrompt');
 const ReportPrompt = require('./gamesteps/ReportPrompt');
 const monk = require('monk');
 const ServiceFactory = require('../services/ServiceFactory.js');
@@ -107,7 +108,7 @@ class Game extends EventEmitter {
         }
 
         for(let player of Object.values(details.players || {})) {
-            this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, this);
+            this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, player.titles, this);
         }
 
         for(let spectator of Object.values(details.spectators || {})) {
@@ -560,16 +561,17 @@ class Game extends EventEmitter {
         this.winReason = reason;
 
         this.router.gameWon(this, reason, winner);
-    //    if(this.event && this.event._id == 'none'){ 
+        if(this.event && this.event._id == 'none'){ 
            this.queueStep(new GameWonPrompt(this, winner));
-    //    }else{
-    //       this.report();
-    //	}
+        }else{
+           this.report();
+    	}
     }
 
     report(){
         
         this.isReported = true;
+        this.addMessage('Game succesfully reported. Winner takes his achievements.');
         this.router.gameReport(this, this.winReason, this.isReported);
         this.configService = ServiceFactory.configService();
         let db = monk(this.configService.getValue('dbPath'));
@@ -1214,7 +1216,14 @@ class Game extends EventEmitter {
                 this.finishedAt = new Date();
             }
         }
+        if(this.event && this.event._id != 'none'){ 
+            let remainingPlayers=this.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
+	    remainingPlayers.forEach( player => this.queueStep(new LeaveGamePrompt(this, player))); 
+    	}
+   
     }
+
+  
 
     disconnect(playerName) {
         var player = this.playersAndSpectators[playerName];
@@ -1393,7 +1402,8 @@ class Game extends EventEmitter {
                 left: player.left,
                 name: player.name,
                 owner: player.owner,
-                user: options.fullData && player.user
+                user: options.fullData && player.user,
+                titles: player.titles
             };
         }
 

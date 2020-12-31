@@ -189,7 +189,6 @@ class GameServer {
             if(player.left || player.disconnectedAt || !player.socket) {
                 return;
             }
-
             player.socket.send('gamestate', game.getState(player.name));
         });
     }
@@ -393,7 +392,6 @@ class GameServer {
         
         let player = game.playersAndSpectators[socket.user.username];
         let isSpectator = player.isSpectator();
-        game.leave(socket.user.username);
 
         this.zmqSocket.send('PLAYERLEFT', {
             gameId: game.id,
@@ -405,9 +403,11 @@ class GameServer {
         socket.send('cleargamestate');
         socket.leaveChannel(game.id);
 
+        game.leave(socket.user.username);
         if(!isSpectator){
-            let remainingPlayers=game.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
-            remainingPlayers.forEach( player => game.recordWinner(player,'concede'));    
+//            let remainingPlayers=game.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
+    //        remainingPlayers.forEach( player => game.recordWinner(player,'concede'));    
+//            remainingPlayers.forEach( player => game.recordWinner(player,'concede'));    
         
         }
         if(game.isEmpty()) {

@@ -97,11 +97,11 @@ class PendingGame {
             logger.error('Tried to add a player to a game that did not have a user object');
             return;
         }
-
         this.players[user.username] = {
             id: id,
             name: user.username,
             user: user,
+            titles: user.titles,
             owner: this.owner.username === user.username
         };
     }
@@ -118,7 +118,6 @@ class PendingGame {
         if(password) {
             this.password = crypto.createHash('md5').update(password).digest('hex');
         }
-
         this.addPlayer(id, user);
     }
 
@@ -299,7 +298,6 @@ class PendingGame {
             } else {
                 deck = {};
             }
-
             playerSummaries[player.name] = {
                 agenda: this.started && player.agenda ? player.agenda.cardData.code : undefined,
                 deck: activePlayer ? deck : {},
@@ -309,7 +307,8 @@ class PendingGame {
                 name: player.name,
                 owner: player.owner,
                 role: player.user.role,
-                settings: player.user.settings
+                settings: player.user.settings,
+                titles: player.titles
             };
         });
 
@@ -351,10 +350,11 @@ class PendingGame {
         const players = {};
          
         for(let playerDetails of Object.values(this.players)) {
-            const {name, user, ...rest} = playerDetails;
+            const {name, user, titles, ...rest} = playerDetails;
             players[name] = {
                 name,
                 user: user.getDetails(),
+                titles,
                 ...rest
             };
         }

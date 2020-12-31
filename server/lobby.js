@@ -13,6 +13,8 @@ const ServiceFactory = require('./services/ServiceFactory');
 const DeckService = require('./services/DeckService.js');
 const CardService = require('./services/CardService.js');
 const EventService = require('./services/EventService.js');
+const UserAchievementService = require('./services/UserAchievementService.js');
+const AchievementService = require('./services/AchievementService.js');
 const User = require('./models/User');
 const { sortBy } = require('./Array');
 
@@ -27,6 +29,8 @@ class Lobby {
         this.cardService = options.cardService || new CardService(options.db);
         this.eventService = options.eventService || new EventService(options.db);
         this.userService = options.userService || ServiceFactory.userService(options.db, this.configService);
+        this.userAchievementService = options.userAchievementService || ServiceFactory.userAchievementService(options.db);
+        this.achievementService = options.achievementService || ServiceFactory.achievementService(options.db);
         this.router = options.router || new GameRouter();
 
         this.router.on('onGameClosed', this.onGameClosed.bind(this));
@@ -139,6 +143,15 @@ class Lobby {
         return userList;
     }
 
+    async getUserTitles(username){
+        let achievements = await this.achievementService.getAllAchievementsArray(); 
+        let userAchievements = await this.userAchievementService.findByUserName(username);
+        return achievements.filter(achievement => !!userAchievements[achievement.code] 
+					&& userAchievements[achievement.code].progress >= achievement.target).map(achievement =>
+							achievement.title
+                                                 );
+    }
+
     handshake(ioSocket, next) {
         let versionInfo = undefined;
 
@@ -150,22 +163,25 @@ class Lobby {
                 }
 
                 this.userService.getUserById(user._id).then(dbUser => {
-                    let socket = this.sockets[ioSocket.id];
-                    if(!socket) {
-                        logger.error('Tried to authenticate socket but could not find it', dbUser.username);
-                        return;
-                    }
+                    this.getUserTitles(dbUser.username).then(titles => {
+                            dbUser["titles"] = titles;
+			    let socket = this.sockets[ioSocket.id];
+			    if(!socket) {
+				logger.error('Tried to authenticate socket but could not find it', dbUser.username);
+				return;
+			    }
 
-                    if(dbUser.disabled) {
-                        ioSocket.disconnect();
-                        return;
-                    }
+			    if(dbUser.disabled) {
+				ioSocket.disconnect();
+				return;
+			    }
 
-                    ioSocket.request.user = dbUser.getWireSafeDetails();
-                    socket.user = dbUser;
-                    this.users[dbUser.username] = socket.user;
+			    ioSocket.request.user = dbUser.getWireSafeDetails();
+			    socket.user = dbUser;
+			    this.users[dbUser.username] = socket.user;
 
-                    this.doPostAuth(socket);
+			    this.doPostAuth(socket);
+                    })
                 }).catch(err => {
                     logger.error(err);
                 });
@@ -283,7 +299,7 @@ class Lobby {
 
     clearStalePendingGames() {
         const timeout = 15 * 60 * 1000;
-        let staleGames = Object.values(this.games).filter(game => !game.started && Date.now() - game.createdAt > timeout);
+        let staleGames = Object.values(this.games).filter(game => !game.headless && !game.started && Date.now() - game.createdAt > timeout);
 
         for(let game of staleGames) {
             logger.info('closed pending game', game.id, 'due to inactivity');
@@ -479,7 +495,6 @@ class Lobby {
                     restrictedList = restrictedLists.find(restrictedList => restrictedList.name === event.name) || defaultRestrictedList;
                 }
             }
-
             let game = new PendingGame(socket.user, {event, restrictedList, ...gameDetails});
             game.newGame(socket.id, socket.user, gameDetails.password);
 
@@ -595,7 +610,6 @@ class Lobby {
         if(!game.isOwner(socket.user.username)) {
             return;
         }
-
         let gameNode = this.router.startGame(game);
         if(!gameNode) {
             return;
@@ -603,7 +617,7 @@ class Lobby {
 
         game.node = gameNode;
         game.started = true;
-
+        
         this.broadcastGameMessage('updategame', game);
 
         for(let player of Object.values(game.getPlayersAndSpectators())) {

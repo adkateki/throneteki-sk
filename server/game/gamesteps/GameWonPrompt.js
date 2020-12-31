@@ -48,7 +48,6 @@ class GameWonPrompt extends AllPlayerPrompt {
             let reportedPlayers = availablePlayers.filter( avPlayer => avPlayer.mustReport ).length==0; 
             if(reportedPlayers && !this.game.reported){ 
                  this.game.report(); 
-                 this.game.addMessage('Game succesfully reported. Winner takes his achievements.');
             }
             
          //   if(this.game.getPlayers().filter(player => !player.left ).length>=2){

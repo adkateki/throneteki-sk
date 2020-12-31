@@ -1,5 +1,4 @@
 const shuffle = require('lodash.shuffle');
-
 const Spectator = require('./spectator.js');
 const CardMatcher = require('./CardMatcher');
 const DrawCard = require('./drawcard.js');
@@ -24,11 +23,11 @@ const ChessClock = require('./ChessClock.js');
 const { DrawPhaseCards, MarshalIntoShadowsCost, SetupGold } = require('./Constants');
 
 class Player extends Spectator {
-    constructor(id, user, owner, game) {
+    constructor(id, user, owner, titles, game) {
         super(id, user);
-
         // Ensure game is set before any cards have been created.
         this.game = game;
+        this.titles = titles;
 
         this.beingPlayed = [];
         this.drawDeck = [];
@@ -1294,7 +1293,8 @@ class Player extends Spectator {
             user: {
                 username: this.user.username
             },
-            chessClock : chessClockState
+            chessClock : chessClockState,
+            titles: this.titles
         };
 
         return Object.assign(state, promptState);

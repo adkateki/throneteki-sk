@@ -1,4 +1,5 @@
 const Settings = require('../settings');
+const logger = require('../log.js');
 
 class User {
     constructor(userData) {

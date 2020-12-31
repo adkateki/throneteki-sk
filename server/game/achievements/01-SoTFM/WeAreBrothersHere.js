@@ -2,7 +2,7 @@ const Achievement = require('../../achievement.js');
 
 class WeAreBrothersHere extends Achievement {
      check(){
-        return this.owner.agenda.name==="The Brotherhood Without Banners"; 
+        return this.owner.agenda && this.owner.agenda.name==="The Brotherhood Without Banners"; 
      }
 }
 
