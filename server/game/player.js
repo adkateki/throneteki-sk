@@ -28,6 +28,7 @@ class Player extends Spectator {
         // Ensure game is set before any cards have been created.
         this.game = game;
         this.titles = titles;
+        this.selectedTitle = user.settings.selectedTitle;
 
         this.beingPlayed = [];
         this.drawDeck = [];
@@ -1294,7 +1295,8 @@ class Player extends Spectator {
                 username: this.user.username
             },
             chessClock : chessClockState,
-            titles: this.titles
+            titles: this.titles,
+            selectedTitle: this.selectedTitle
         };
 
         return Object.assign(state, promptState);

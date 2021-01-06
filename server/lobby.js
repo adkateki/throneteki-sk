@@ -152,6 +152,32 @@ class Lobby {
                                                  );
     }
 
+    storeSocketUserById(userId){
+	 this.userService.getUserById(userId).then(dbUser => {
+	    this.getUserTitles(dbUser.username).then(titles => {
+		    dbUser["titles"] = titles;
+		    let socket = this.sockets[ioSocket.id];
+		    if(!socket) {
+			logger.error('Tried to authenticate socket but could not find it', dbUser.username);
+			return;
+		    }
+
+		    if(dbUser.disabled) {
+			ioSocket.disconnect();
+			return;
+		    }
+
+		    ioSocket.request.user = dbUser.getWireSafeDetails();
+		    socket.user = dbUser;
+		    this.users[dbUser.username] = socket.user;
+
+		    this.doPostAuth(socket);
+	    })
+	}).catch(err => {
+	    logger.error(err);
+	});       
+    }
+
     handshake(ioSocket, next) {
         let versionInfo = undefined;
 
@@ -163,25 +189,22 @@ class Lobby {
                 }
 
                 this.userService.getUserById(user._id).then(dbUser => {
-                    this.getUserTitles(dbUser.username).then(titles => {
-                            dbUser["titles"] = titles;
-			    let socket = this.sockets[ioSocket.id];
-			    if(!socket) {
-				logger.error('Tried to authenticate socket but could not find it', dbUser.username);
-				return;
-			    }
+		    let socket = this.sockets[ioSocket.id];
+		    if(!socket) {
+			logger.error('Tried to authenticate socket but could not find it', dbUser.username);
+			return;
+		    }
 
-			    if(dbUser.disabled) {
-				ioSocket.disconnect();
-				return;
-			    }
+		    if(dbUser.disabled) {
+			ioSocket.disconnect();
+			return;
+		    }
 
-			    ioSocket.request.user = dbUser.getWireSafeDetails();
-			    socket.user = dbUser;
-			    this.users[dbUser.username] = socket.user;
+		    ioSocket.request.user = dbUser.getWireSafeDetails();
+		    socket.user = dbUser;
+		    this.users[dbUser.username] = socket.user;
 
-			    this.doPostAuth(socket);
-                    })
+		    this.doPostAuth(socket);
                 }).catch(err => {
                     logger.error(err);
                 });
@@ -610,26 +633,37 @@ class Lobby {
         if(!game.isOwner(socket.user.username)) {
             return;
         }
-        let gameNode = this.router.startGame(game);
-        if(!gameNode) {
-            return;
+        let titlesPromises = [];
+        for(let player of Object.values(game.getPlayers())) {
+            titlesPromises.push(this.getUserTitles(player.name).then( userTitles => {
+                         player.titles = userTitles;
+                     })
+                  );
         }
-
-        game.node = gameNode;
-        game.started = true;
         
-        this.broadcastGameMessage('updategame', game);
+        Promise.all(titlesPromises).then(() => {
+		let gameNode = this.router.startGame(game);
+		if(!gameNode) {
+		    return;
+		}
 
-        for(let player of Object.values(game.getPlayersAndSpectators())) {
-            let socket = this.sockets[player.id];
+		game.node = gameNode;
+		game.started = true;
+		
+		this.broadcastGameMessage('updategame', game);
 
-            if(!socket || !socket.user) {
-                logger.error(`Wanted to handoff to ${player.name}, but couldn't find a socket`);
-                continue;
-            }
+		for(let player of Object.values(game.getPlayersAndSpectators())) {
+		    let socket = this.sockets[player.id];
 
-            this.sendHandoff(socket, gameNode, game.id);
-        }
+		    if(!socket || !socket.user) {
+			logger.error(`Wanted to handoff to ${player.name}, but couldn't find a socket`);
+			continue;
+		    }
+
+		    this.sendHandoff(socket, gameNode, game.id);
+		}
+        });
+
     }
 
     sendHandoff(socket, gameNode, gameId) {
@@ -860,7 +894,7 @@ class Lobby {
             return;
         }
         if(!game.headless){
-          delete this.games[gameid];
+          delete this.games[gameId];
           this.broadcastGameMessage('removegame', game);
         }else{
           game.started = false;

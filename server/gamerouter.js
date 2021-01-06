@@ -240,7 +240,7 @@ class GameRouter extends EventEmitter {
 
     checkTimeouts() {
         var currentTime = Date.now();
-        const pingTimeout = 5 * 60 * 1000;
+        const pingTimeout = 1 * 60 * 1000;
 
         for(const worker of Object.values(this.workers)) {
             if(worker.disconnected) {

@@ -650,6 +650,17 @@ class Game extends EventEmitter {
         }
     }
 
+    changeTitle(playerName, selectedTitle) {
+	let player = this.getPlayerByName(playerName);
+        if(!player){
+           return;
+        }
+        if(selectedTitle == ''){
+           return;
+        }
+        player.selectedTitle = selectedTitle;
+    }
+
     chat(playerName, message) {
         var player = this.playersAndSpectators[playerName];
         var args = message.split(' ');
@@ -1403,7 +1414,8 @@ class Game extends EventEmitter {
                 name: player.name,
                 owner: player.owner,
                 user: options.fullData && player.user,
-                titles: player.titles
+                titles: player.titles,
+                selectedTitle: player.selectedTitle
             };
         }
 
