@@ -1187,7 +1187,7 @@ class Game extends EventEmitter {
             return false;
         }
 
-        this.playersAndSpectators[user.username] = new Player(socketId, user, this.owner === user.username, this);
+        this.playersAndSpectators[user.username] = new Player(socketId, user, this.owner === user.username, false, this);
 
         return true;
     }
