@@ -357,6 +357,9 @@ class PendingGame {
                 titles,
                 ...rest
             };
+            if(!players[name].user.settings.selectedTitle && players[name].titles.length>0){
+                players[name].user.settings.selectedTitle = players[name].titles[0];
+            }
         }
 
         const spectators = {};

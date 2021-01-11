@@ -554,7 +554,7 @@ class Game extends EventEmitter {
             return;
         }
         this.addAlert('success', '{0} has won the game', winner);
-        if(this.headless && this.event._id !='none') this.addAlert('warning', 'Please click on "Report the game" button');
+        if(this.headless && this.event._id !='none') this.addAlert('warning', 'Game succesfully reported. Winner takes his achievements.');
 
         this.winner = winner;
         this.finishedAt = new Date();
@@ -571,7 +571,6 @@ class Game extends EventEmitter {
     report(){
         
         this.isReported = true;
-        this.addMessage('Game succesfully reported. Winner takes his achievements.');
         this.router.gameReport(this, this.winReason, this.isReported);
         this.configService = ServiceFactory.configService();
         let db = monk(this.configService.getValue('dbPath'));
@@ -1226,11 +1225,12 @@ class Game extends EventEmitter {
             if(!this.finishedAt) {
                 this.finishedAt = new Date();
             }
+	    if(this.event && this.event._id != 'none'){ 
+		let remainingPlayers=this.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
+		remainingPlayers.forEach( player => this.queueStep(new LeaveGamePrompt(this, player))); 
+	    }
         }
-        if(this.event && this.event._id != 'none'){ 
-            let remainingPlayers=this.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
-	    remainingPlayers.forEach( player => this.queueStep(new LeaveGamePrompt(this, player))); 
-    	}
+
    
     }
 

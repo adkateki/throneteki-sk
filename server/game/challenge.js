@@ -2,6 +2,7 @@ const Player = require('./player.js');
 const EventRegistrar = require('./eventregistrar.js');
 const Settings = require('../settings.js');
 const ChallengeMatcher = require('./ChallengeMatcher');
+const logger = require('../log');
 
 class Challenge {
     constructor(game, properties) {
@@ -27,7 +28,7 @@ class Challenge {
     }
 
     singlePlayerDefender() {
-        let dummyPlayer = new Player('', Settings.getUserWithDefaultsSet({ name: 'Dummy Player' }), false, this.game);
+        let dummyPlayer = new Player('', Settings.getUserWithDefaultsSet({ name: 'Dummy Player' }), false, false, this.game);
         dummyPlayer.initialise();
         dummyPlayer.resetForStartOfRound();
         return dummyPlayer;

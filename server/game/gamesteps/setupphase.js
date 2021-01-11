@@ -30,7 +30,7 @@ class SetupPhase extends Phase {
         for(const player of this.game.getPlayers()) {
             player.createFactionAndAgenda();
             let playerTitles = "with no titles";
-            if(player.titles>0){
+            if(player.titles.length>0){
                playerTitles = player.titles;
             }
             this.game.addMessage('{0}of{1},{2}', player, player.faction, playerTitles);

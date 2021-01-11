@@ -5,6 +5,7 @@ const ChallengeFlow = require('./challenge/challengeflow.js');
 const ChallengeTypes = require('../ChallengeTypes');
 const ActionWindow = require('./actionwindow.js');
 const {ChallengeTracker} = require('../EventTrackers');
+const logger = require('../../log');
 
 class ChallengePhase extends Phase {
     constructor(game) {
@@ -85,7 +86,6 @@ class ChallengePhase extends Phase {
             this.game.queueSimpleStep(() => this.promptForChallenge());
             return;
         }
-
         let challenge = new Challenge(this.game, {
             attackingPlayer: attackingPlayer,
             defendingPlayer: defendingPlayer,
