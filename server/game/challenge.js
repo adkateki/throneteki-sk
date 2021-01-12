@@ -98,11 +98,11 @@ class Challenge {
     }
 
     isAttacking(card) {
-        return this.isInitiated && this.attackers.includes(card);
+        return this.attackers.includes(card);
     }
 
     isDefending(card) {
-        return this.isInitiated && this.defenders.includes(card);
+        return this.defenders.includes(card);
     }
 
     isParticipating(card) {
