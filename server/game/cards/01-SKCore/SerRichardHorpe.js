@@ -12,7 +12,7 @@ class SerRichardHorpe extends DrawCard {
             target: {
                 type: 'select',
                 activePromptTitle: 'Select a character with power',
-                cardCondition: card => card.location === 'play area' && card.getType() === 'character' && card.power >=1                                        && card.controller === this.controller;
+                cardCondition: card => card.location === 'play area' && card.getType() === 'character' && card.power >=1  && card.controller === this.controller
             },
             handler: context => {
                 let oldCard = context.target;

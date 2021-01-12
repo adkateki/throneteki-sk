@@ -12,6 +12,7 @@ class RobertArryn extends DrawCard {
             },
             limit: ability.limit.perRound(1)
         });
+     }
 }
 
 RobertArryn.code = '50084';

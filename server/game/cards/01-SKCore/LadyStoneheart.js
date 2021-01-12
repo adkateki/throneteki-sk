@@ -8,7 +8,6 @@ class LadyStoneheart extends DrawCard {
             targetController: 'any',
             effect: ability.effects.cannotBeSaved()
         });
-    }
         this.reaction({
             when: {
                 onCharacterKilled: event => !event.card.isUnique()
@@ -19,6 +18,7 @@ class LadyStoneheart extends DrawCard {
                 this.game.addMessage('{0} stands {1}', this.controller, this);
             }
         });
+    }
 }
 
 LadyStoneheart.code = '50083';

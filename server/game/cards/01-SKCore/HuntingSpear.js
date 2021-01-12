@@ -10,6 +10,6 @@ class HuntingSpear extends DrawCard {
     }
 }
 
-HuntingSpear.code = '500100';
+HuntingSpear.code = '50100';
 
-module.exports = HundingSpear;
+module.exports = HuntingSpear;

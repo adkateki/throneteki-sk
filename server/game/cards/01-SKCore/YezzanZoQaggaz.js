@@ -6,11 +6,11 @@ class YezzanZoQaggaz extends DrawCard {
             title: 'Put character into play',
             phase: 'challenge',
             condition: () => (
-                this.isParticipating();
+                this.isParticipating()
             ),
             target: {
                 cardCondition: card => card.location === 'discard pile' && card.controller === this.controller &&
-                                       card.getType() === 'character' && (card.hasTrait('Ally')||card.gasTrait('Mercenary') && this.controller.canPutIntoPlay(card)
+                                       card.getType() === 'character' && (card.hasTrait('Ally') || card.gasTrait('Mercenary')) && this.controller.canPutIntoPlay(card)
             },
             cost: [
                 ability.costs.discardGold()

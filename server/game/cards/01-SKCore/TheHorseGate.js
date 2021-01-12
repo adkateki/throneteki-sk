@@ -7,9 +7,8 @@ class TheHorseGate extends DrawCard {
                 onCardReturnedToHand: event =>
                     event.allowSave &&
                     event.card.getType() === 'character' &&
-                    (event.card.hasTrait('Bloodrider') &&
-                    event.card.owner === this.controller //check for owner of the returned card in case dothraki/army card got stolen by the opponent
-
+                    event.card.hasTrait('Bloodrider') &&
+                    event.card.owner === this.controller
             },
             cost: [
                 ability.costs.discardGold(),
@@ -24,6 +23,6 @@ class TheHorseGate extends DrawCard {
     }
 }
 
-TheHorseGate.code = '15005';
+TheHorseGate.code = '50098';
 
 module.exports = TheHorseGate;

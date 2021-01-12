@@ -6,6 +6,7 @@ class HouseUllerGuard extends DrawCard {
             match: (card) => card.hasTrait('Guard') && card.getType() === 'character',
             effect: ability.effects.modifyStrength(1)
         });
+    }
 }
 
 HouseUllerGuard.code = '50089';
