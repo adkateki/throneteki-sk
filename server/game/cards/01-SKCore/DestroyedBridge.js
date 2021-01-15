@@ -8,7 +8,7 @@ class DestroyedBridge extends PlotCard {
                 let players = this.game.getPlayersInFirstPlayerOrder();
                 let locations = flatMap(players, player => player.filterCardsInPlay(card => card.getType() === 'location' && card.getPrintedCost()<=2));
                 for (let card of locations){
-                   player.kneelCard(card); 
+                   card.controller.kneelCard(card); 
                 }
             }
         });

@@ -25,6 +25,7 @@ class SerRichardHorpe extends DrawCard {
                     onSelect: (player, card) => {
                           this.game.movePower(oldCard, card, 1);
                           this.game.addMessage('{0} uses {1} to move 1 power fom {2} to {3}', context.player, this, oldCard, card);
+                          return true;
                        }
                 });
             }

@@ -10,7 +10,7 @@ class Kegs extends DrawCard {
                 this.game.promptForDeckSearch(this.controller, {
                     numCards: 10,
                     activePromptTitle: 'Select a card',
-                    cardCondition: card => card.getType() === 'attachment' && card.isFaction('thenightswatch') && card.hasTrait('weapon'),
+                    cardCondition: card => card.getType() === 'attachment' && card.hasTrait('weapon'),
                     onSelect: (player, card) => this.cardSelected(player, card),
                     onCancel: player => this.doneSelecting(player),
                     source: this

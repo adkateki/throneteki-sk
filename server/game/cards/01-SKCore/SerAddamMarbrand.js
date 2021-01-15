@@ -14,14 +14,10 @@ class SerAddamMarbrand extends DrawCard {
     }
 
     opponentHoldsLessCards() {
-        let challenge = this.game.currentChallenge;
-
-        if(!challenge) {
-            return false;
-        }
-
-        return challenge.attackingPlayer === this.controller &&
-               this.controller.hand.length > challenge.defendingPlayer.hand.length;
+        let opponents = this.game.getOpponents(this.controller);
+        return opponents.every(opponent => {
+            return this.controller.hand.length > opponent.hand.length;
+        });
     }
 }
 

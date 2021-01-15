@@ -16,7 +16,7 @@ class YezzanZoQaggaz extends DrawCard {
                 ability.costs.discardGold()
             ],
             handler: context => {
-                context.player.putIntoPlay(context.target, { kneeled: true });
+                context.player.putIntoPlay(context.target, 'play', { kneeled: true });
                 this.game.currentChallenge.addParticipantToSide(this.controller, context.target);
 		this.atEndOfChallenge(ability => ({
 		    match: context.target,

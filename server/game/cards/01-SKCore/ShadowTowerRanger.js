@@ -6,7 +6,7 @@ class ShadowTowerRanger extends DrawCard {
             title: 'Give STR',
             cost: ability.costs.kneelSelf(),
             target: {
-                cardCondition: card => card.getType() === 'character' && card.isFaction('thenigthswatch')
+                cardCondition: card => card.location === 'play area' && card.getType() === 'character' && card.isFaction('thenightswatch')
             },
             message: {
                 format: '{player} kneels {source} to give {target} +{strength} STR until the end of the phase',

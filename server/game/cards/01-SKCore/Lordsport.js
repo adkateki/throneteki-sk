@@ -10,6 +10,7 @@ class Lordsport extends DrawCard {
                     card.controller === this.controller &&
                     (card.location === 'hand' || card.location === 'discard pile') &&
                     card.getType() === 'attachment' &&
+                    card.isFaction('greyjoy') &&
                     this.controller.canPutIntoPlay(card)
                 )
             },
