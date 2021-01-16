@@ -8,6 +8,7 @@ class MaesterColemon extends DrawCard {
                 activePrompTitle: 'Select an attachment',
                 cardCondition: card => card.location === 'play area' && ['attachment'].includes(card.getType())
             },
+            limit: ability.limit.perRound(1),
             handler: context => {
                 this.untilEndOfPhase(ability => ({
                     match: context.target,
