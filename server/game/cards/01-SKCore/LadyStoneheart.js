@@ -1,4 +1,5 @@
 const DrawCard = require('../../drawcard.js');
+const GameActions = require('../../GameActions');
 
 class LadyStoneheart extends DrawCard {
     setupCardAbilities(ability) {
@@ -14,14 +15,22 @@ class LadyStoneheart extends DrawCard {
                 onCharacterKilled: event => event.card.hasTrait('Brotherhood') || event.card.hasTrait('R\'hllor') && event.card.controller === this.controller
             },
             location: 'dead pile',
-            handler: () => {
-                if(this.controller.canPutIntoPlay(this)) {
-                    this.controller.putIntoPlay(this);
-                }
-                this.untilEndOfPhase(ability => ({
-                    match: card => card === this.controller.activePlot,
-                    effect: ability.effects.modifyClaim(1)
-                }));
+            handler: (context) => {
+		this.game.resolveGameAction(
+		    GameActions.putIntoPlay(() => ({
+			card: this
+		    })).then({
+                         handler: thenContext => {
+			     this.untilEndOfPhase(ability => ({
+				match: card => card === this.controller.activePlot,
+				effect: ability.effects.modifyClaim(1)
+			      }));                                 
+                         }    
+                    }),
+		    context
+		);
+
+
                 this.game.addMessage('{0} puts {1} into play and raises the claim value of his or her revealed plot card by1 until the end of the phase.', this.controller, this);
             }
         });
