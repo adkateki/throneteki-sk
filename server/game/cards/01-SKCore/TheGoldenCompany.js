@@ -14,10 +14,14 @@ class TheGoldenCompany extends DrawCard {
             handler: () => {
                 this.untilEndOfPhase(ability => ({
                     targetController: 'current',
-                    effect: ability.effects.reduceNextMarshalledCardCost(1, card => card.getType() === 'character' && card.hasTrait('Bastard') || card.hasTrait('Companion') || card.hasTrait('Mercenary'))
+                    effect: ability.effects.reduceCost({
+                        playingTypes: 'marshal',
+                        amount: 1,
+                        match: card => card.getType() === 'character' && card.hasTrait('Bastard') || card.hasTrait('Companion') || card.hasTrait('Mercenary')
+                    })
                 }));
 
-                this.game.addMessage('{0} uses {1} to reduce the cost of the next {2} card they marshal this phase by 1',
+                this.game.addMessage('{0} uses {1} to reduce the cost for him to marshall {2} characters this phase by 1',
                     this.controller, this, 'Bastard, Companion or Mercenary');
             }
         });
