@@ -1,7 +1,7 @@
 const DrawCard = require('../../drawcard.js');
 
 class MaesterColemon extends DrawCard {
-    setupCardAbilities() {
+    setupCardAbilities(ability) {
         this.action({
             title: 'Blank an attachment',
             target: {
