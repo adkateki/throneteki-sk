@@ -6,7 +6,7 @@ class EvenfallHall extends DrawCard {
             when: {
                 onCardPlayed: event => event.card.hasTrait('Song') && event.card.controller === this.controller && this.controller.canDraw()
             },
-            limit: ability.limit.perPhase(2),
+            limit: ability.limit.perRound(2),
             handler: () => {
                 this.controller.drawCardsToHand(1);
                 this.game.addMessage('{0} uses {1} to draw 1 card', this.controller, this);

@@ -8,6 +8,7 @@ class TheGiantslayer extends DrawCard {
                     this.isParticipating()
             },
             cost: ability.costs.kill(),
+            limit: ability.limit.perPhase(1),
             handler: context => {
                 this.untilEndOfChallenge(ability => ({
                     match: card => card === this.controller.activePlot,

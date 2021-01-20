@@ -3,7 +3,7 @@ const Socket = require('./socket.js');
 const jwt = require('jsonwebtoken');
 const _ = require('underscore');
 const moment = require('moment');
-const { validateDeck, formatDeckAsFullCards } = require('throneteki-deck-helper');
+const { validateDeck, formatDeckAsFullCards } = require('throneteki-deck-helper-sk');
 
 const logger = require('./log.js');
 const version = moment(require('../version.js'));
@@ -53,7 +53,7 @@ class Lobby {
             this.io.emit('removemessage', messageId);
         });
 
-        setInterval(() => this.clearStalePendingGames(), 60 * 1000);
+//        setInterval(() => this.clearStalePendingGames(), 60 * 1000);
     }
 
     // External methods

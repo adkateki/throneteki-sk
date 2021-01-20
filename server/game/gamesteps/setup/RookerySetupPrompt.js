@@ -1,4 +1,4 @@
-const { validateDeck, formatDeckAsShortCards, formatDeckAsFullCards } = require('throneteki-deck-helper');
+const { validateDeck, formatDeckAsShortCards, formatDeckAsFullCards } = require('throneteki-deck-helper-sk');
 
 const AllPlayerPrompt = require('../allplayerprompt.js');
 
