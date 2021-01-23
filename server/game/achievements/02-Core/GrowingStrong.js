@@ -2,7 +2,7 @@ const Achievement = require('../../achievement.js');
 
 class GrowinStrong extends Achievement {
      check(){
-        return this.owner.faction.name==="House Tyrell";
+        return this.owner.faction.name==="House Tyrell" && this.owner.agenda && this.owner.agenda.name !== "The Free Folk";;
      }
 }
 

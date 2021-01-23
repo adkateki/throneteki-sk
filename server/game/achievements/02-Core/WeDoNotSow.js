@@ -2,7 +2,7 @@ const Achievement = require('../../achievement.js');
 
 class WeDoNotSow extends Achievement {
      check(){
-        return this.owner.faction.name==="House Greyjoy";
+        return this.owner.faction.name==="House Greyjoy" && this.owner.agenda && this.owner.agenda.name !== "The Free Folk";;
      }
 }
 

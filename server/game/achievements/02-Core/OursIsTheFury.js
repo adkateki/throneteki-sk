@@ -2,7 +2,7 @@ const Achievement = require('../../achievement.js');
 
 class OursIsTheFury extends Achievement {
      check(){
-        return this.owner.faction.name==="House Baratheon";
+        return this.owner.faction.name==="House Baratheon" && this.owner.agenda && this.owner.agenda.name !== "The Free Folk";;
      }
 }
 
