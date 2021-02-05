@@ -771,8 +771,8 @@ class Lobby {
         if(!game) {
             return Promise.reject('Game not found');
         }
-
-        return Promise.all([this.cardService.getAllCards(), this.cardService.getAllPacks(), this.deckService.getById(deckId)])
+        logger.info("debuglog test selectdeck: "+game.event._id);
+        return Promise.all([this.cardService.getAllCards(), this.cardService.getAllPacks(), this.deckService.getById(deckId, game.event.name)])
             .then(results => {
                 let [cards, packs, deck] = results;
                 let formattedDeck = formatDeckAsFullCards(deck, { cards: cards });
