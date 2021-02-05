@@ -102,6 +102,7 @@ class PendingGame {
             name: user.username,
             user: user,
             titles: user.titles,
+            achievementTries: user.achievementTries || 0,
             owner: this.owner.username === user.username
         };
     }
@@ -308,7 +309,8 @@ class PendingGame {
                 owner: player.owner,
                 role: player.user.role,
                 settings: player.user.settings,
-                titles: player.titles
+                titles: player.titles,
+                achievementTries: player.achievementTries
             };
         });
 

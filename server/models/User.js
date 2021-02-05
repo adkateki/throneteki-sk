@@ -81,6 +81,8 @@ class User {
     get isSupporter() {
         return this.userData.permissions && this.userData.permissions.isSupporter;
     }
+ 
+    
 
     get role() {
         if(this.isAdmin) {
@@ -105,6 +107,10 @@ class User {
 
     get patreonId() {
         return this.userData.patreonId;
+    }
+
+    get achievementTries() {
+        return this.userData.achievementTries;
     }
 
     set patreon(value) {

@@ -771,7 +771,7 @@ class Lobby {
         if(!game) {
             return Promise.reject('Game not found');
         }
-
+        logger.info("debuglog test eventname");
         return Promise.all([this.cardService.getAllCards(), this.cardService.getAllPacks(), this.deckService.getById(deckId)])
             .then(results => {
                 let [cards, packs, deck] = results;
