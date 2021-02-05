@@ -19,6 +19,7 @@ class UserService extends EventEmitter {
     getUserByUsername(username) {
         return this.users.find({ username: { '$regex': new RegExp('^' + escapeRegex(username.toLowerCase()) + '$', 'i') } })
             .then(users => {
+              
                 return users[0] && new User(users[0]);
             })
             .catch(err => {
@@ -73,7 +74,8 @@ class UserService extends EventEmitter {
             permissions: user.permissions,
             verified: user.verified,
             disabled: user.disabled,
-            patreon: user.patreon
+            patreon: user.patreon,
+            patreonId: user.patreonId
         };
 
         if(user.password && user.password !== '') {
@@ -222,6 +224,14 @@ class UserService extends EventEmitter {
 
     setSupporterStatus(username, isSupporter) {
         return this.users.update({ username: username }, { '$set': { 'permissions.isSupporter': isSupporter } });
+    }
+
+    setPatreonId(username, patreonId) {
+        return this.users.update({ username: username }, { '$set': { patreonId: patreonId } });
+    }
+
+    setAchievementTries(username, quantity){
+       return this.users.update({ username: username },{ '$inc': { achievementTries: quantity }});
     }
 
     async getPossiblyLinkedAccounts(user) {

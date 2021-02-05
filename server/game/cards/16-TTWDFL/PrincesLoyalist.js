@@ -3,12 +3,16 @@ const GameActions = require('../../GameActions');
 
 class PrincesLoyalist extends DrawCard {
     setupCardAbilities(ability) {
+        this.persistentEffect({
+            match: this,
+            effect: ability.effects.immuneTo(card => card.getType() === 'event')
+        });
         this.interrupt({
             canCancel: true,
             when: {
                 //Restrict triggering on own triggered abilities to forced triggered abilities
                 onCardAbilityInitiated: event => event.ability.isTriggeredAbility() &&
-                                                 event.source.getType() === 'characcter' &&
+                                                 event.source.getType() === 'character' &&
                                                  (event.ability.isForcedAbility() || event.source.controller !== this.controller)
             },
             cost: ability.costs.payGold(2),

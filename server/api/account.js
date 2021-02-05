@@ -93,6 +93,30 @@ function writeFile(path, data, opts = 'utf8') {
     });
 }
 
+async function processPatreonRewards(patreonId, rewardService){
+    logger.info("debuglog :"+patreonId);
+    let countPatreonRewards = await rewardService.countByUsernameAndType(patreonId, 'patreon');
+    if(countPatreonRewards===0){
+	logger.info("debuglog : createreward for new patreon");
+	await rewardService.create(patreonId, 'patreon', 20, 60*10 );
+	return res.send({ success: true });
+    }
+    let rewards = await rewardService.findByUsernameAndType(patreonId,'patreon');
+    let currentDate = new Date();  
+    let numberOfTries = 0;
+    for(let reward of rewards){
+	//insert here pledge update
+	let expirationDate = new Date(reward.expirationDate);
+	if( currentDate > expirationDate ){
+	   await rewardService.updateExpirationDate(patreonId,'patreon',new Date(expirationDate.getTime() + 60*10*1000));
+	   await rewardService.updateUsed(reward._id, 0);
+	}
+        numberOfTries+=(reward.available - reward.used);
+    }
+    return numberOfTries;
+
+}
+
 const DefaultEmailHash = crypto.createHash('md5').update('noreply@theironthrone.net').digest('hex');
 
 module.exports.init = function(server, options) {
@@ -100,6 +124,7 @@ module.exports.init = function(server, options) {
     let banlistService = ServiceFactory.banlistService(options.db);
     let patreonService = ServiceFactory.patreonService(configService.getValue('patreonClientId'), configService.getValue('patreonSecret'), userService,
         configService.getValue('patreonCallbackUrl'));
+    let rewardService = ServiceFactory.rewardService(options.db);
     let emailKey = configService.getValue('emailKey');
 
     if(emailKey) {
@@ -299,7 +324,11 @@ module.exports.init = function(server, options) {
             return res.send({ success: true, user: userDetails });
         }
 
-        userDetails.patreon = await patreonService.getPatreonStatusForUser(user);
+        let {status, id, pledgeAmount} = await patreonService.getPatreonStatusForUser(user);
+        if(!id) {
+            return res.send({ success: true, user: userDetails });
+        }
+        userDetails.patreon = status;
 
         if(userDetails.patreon === 'none') {
             delete (userDetails.patreon);
@@ -308,23 +337,33 @@ module.exports.init = function(server, options) {
             if(!ret) {
                 return res.send({ success: true, user: userDetails });
             }
-
-            userDetails.patreon = await patreonService.getPatreonStatusForUser(user);
+            let {status, id, pledgeAmount} = await patreonService.getPatreonStatusForUser(user);
+            userDetails.patreon = status;
 
             if(userDetails.patreon === 'none') {
                 return res.send({ success: true, user: userDetails });
             }
         }
-
-        if(userDetails.patreon === 'pledged' && !userDetails.permissions.isSupporter) {
-            await userService.setSupporterStatus(user.username, true);
-            // eslint-disable-next-line require-atomic-updates
-            userDetails.permissions.isSupporter = req.user.permissions.isSupporter = true;
+        if(userDetails.patreon === 'pledged') {
+            if(!userDetails.permissions.isSupporter){
+                await userService.setSupporterStatus(user.username, true);
+                userDetails.permissions.isSupporter = req.user.permissions.isSupporter = true;              
+            }
+            if(pledgeAmount >= 100){
+		logger.info("debuglog : pledged over amount");
+    //            let patreonId = await patreonService.getPatreonIdForUser(user);
+		let patreonId = id;
+                let numberOfTries = await processPatreonRewards(patreonId, rewardService);
+                userDetails.patreonTries=numberOfTries;
+            }
         } else if(userDetails.patreon !== 'pledged' && userDetails.permissions.isSupporter) {
+            logger.info("debuglog : no pledged");
             await userService.setSupporterStatus(user.username, false);
             // eslint-disable-next-line require-atomic-updates
             userDetails.permissions.isSupporter = req.user.permissions.isSupporter = false;
         }
+
+
 
         res.send({ success: true, user: userDetails });
     }));
@@ -719,21 +758,43 @@ module.exports.init = function(server, options) {
         if(!ret) {
             return res.send({ success: false, message: 'An error occured syncing your patreon account.  Please try again later.' });
         }
-
+        user.patreon = null;
         user.patreon = ret;
-        let status = await patreonService.getPatreonStatusForUser(user);
-
-        if(status === 'pledged' && !user.permissions.isSupporter) {
-            await userService.setSupporterStatus(user.username, true);
-            // eslint-disable-next-line require-atomic-updates
-            user.permissions.isSupporter = req.user.permissions.isSupporter = true;
+        let {status, id, pledgeAmount} = await patreonService.getPatreonStatusForUser(user);
+        if(!id){
+            return;
+        }
+        try {
+            await userService.setPatreonId(user.username, id);
+        } catch(err) {
+            logger.error(err);
+            return false;
+        }
+        let numberOfTries=0;
+//        if(status === 'pledged' && !user.permissions.isSupporter) {
+        if(status === 'pledged') {
+            if(!user.permissions.isSupporter){
+                await userService.setSupporterStatus(user.username, true);
+                user.permissions.isSupporter = req.user.permissions.isSupporter = true;              
+            }
+            if(pledgeAmount >= 100){
+		logger.info("debuglog : pledged over amount");
+		let patreonId = id;
+                numberOfTries = await processPatreonRewards(patreonId, rewardService);
+            }
         } else if(status !== 'pledged' && user.permissions.isSupporter) {
+            logger.info("debuglog : no pledged");
             await userService.setSupporterStatus(user.username, false);
             // eslint-disable-next-line require-atomic-updates
             user.permissions.isSupporter = req.user.permissions.isSupporter = false;
-        }
+        } 
+        let updatedUser = await userService.getUserById(user._id);
+        let userToReturn = updatedUser.getWireSafeDetails();
+        userToReturn.patreon=status;
+        userToReturn.patreonTries=numberOfTries;
 
-        return res.send({ success: true });
+        return res.send({ success: true, user: userToReturn, message: 'Linked succcessfully.' });
+        //return res.send({ success: true });
     }));
 
     server.post('/api/account/unlinkPatreon', passport.authenticate('jwt', { session: false }), wrapAsync(async (req, res) => {
@@ -752,6 +813,35 @@ module.exports.init = function(server, options) {
 
         return res.send({ success: true });
     }));
+
+    server.post('/api/account/getPatreonTries', passport.authenticate('jwt', { session: false }), wrapAsync(async (req, res) => {
+        req.params.username = req.user ? req.user.username : undefined;
+        let user = await checkAuth(req, res);
+        if(!user) {
+            return;
+        }
+        logger.info("debuglog patreonId getPatreonTries: " +user.patreonId);
+        rewards = await rewardService.findByUsernameAndType(user.patreonId,'patreon');
+        let message = 'Tries withdrawed.';
+        let triesWithdrawed = 0;
+        for(let reward of rewards){
+            logger.info("debuglog achitries: " +(reward.available - reward.used));
+            if (reward.available > reward.used){
+               await userService.setAchievementTries(req.user.username, reward.available - reward.used);
+               await rewardService.updateUsed(reward._id, reward.available);
+               triesWithdrawed+=(reward.available - reward.used);
+               message = triesWithdrawed + ' ' + message;
+            } 
+        }  
+        let updatedUser = await userService.getUserById(user._id);
+        let userToReturn = updatedUser.getWireSafeDetails();
+        userToReturn.patreonTries=0;
+   
+        res.send({ success: true, user: userToReturn ,message: message });
+    }));
+
+
+
 };
 
 async function downloadAvatar(user) {

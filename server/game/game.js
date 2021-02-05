@@ -1225,7 +1225,7 @@ class Game extends EventEmitter {
             if(!this.finishedAt) {
                 this.finishedAt = new Date();
             }
-	    if(this.event && this.event._id != 'none'){ 
+	    if(this.event && this.event._id != 'none' && !this.winner){ 
 		let remainingPlayers=this.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
 		remainingPlayers.forEach( player => this.queueStep(new LeaveGamePrompt(this, player))); 
 	    }

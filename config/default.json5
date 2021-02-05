@@ -4,6 +4,10 @@
     secret: 'somethingverysecret',
     hmacSecret: 'somethingevenmoresecret',
 
+    patreonSecret: 'F_abZ8jyaqK296VuDnxV_T4OkZurxxwuSCA-2k_xb5z2VEqztdFhekYCZ8_0Ztzp',
+    patreonClientId: '_gSg9x8qMgjNmt4hhlOjGRkQXXGuBNmQbzJc9GlvCksmRXLggiTeKcNN_KfAZBO3',
+    patreonCallbackUrl: 'http://sktest.megametateki.com:8080/patreon',
+
     dbPath: 'mongodb://localhost:27017/throneteki',
     // This is the host/port of the Zero MQ server which does the node load balancing
     requireActiviation: false,

@@ -13,14 +13,34 @@ class PatreonService {
         this.patreonOAuthClient = patreonOAuth(clientId, secret);
     }
 
-    async getPatreonStatusForUser(user) {
+    async getPatreonIdForUser(user) {
         let response;
         let patreonApiClient = patreonAPI(user.patreon.access_token);
 
         try {
             response = await patreonApiClient('/current_user', {
+                });
+        } catch(err) {
+            logger.error(err);
+
+            return 'none';
+        }
+
+        let { id } = response.rawJson.data;
+        logger.info("debuglog userid: "+id);
+        
+        return id;
+    }
+
+    async getPatreonStatusForUser(user) {
+        let response;
+        logger.info("debuglog token: "+user.patreon.access_token);
+        let patreonApiClient = patreonAPI(user.patreon.access_token);
+
+        try {
+            response = await patreonApiClient('/current_user', {
                 fields: {
-                    pledge: [...pledge_schema.default_attributes, pledge_schema.attributes.declined_since, pledge_schema.attributes.created_at]
+                    pledge: [...pledge_schema.default_attributes, pledge_schema.attributes.declined_since, pledge_schema.attributes.created_at, pledge_schema.attributes.amount_cents]
                 }
             });
         } catch(err) {
@@ -33,10 +53,20 @@ class PatreonService {
         let pUser = response.store.find('user', id);
 
         if(!pUser || !pUser.pledges || pUser.pledges.length === 0) {
-            return 'linked';
+            logger.info("debuglog linked no pledged:");
+            return {status: 'linked', id:id};
         } 
-        
-        return 'pledged';
+        let pledge_id = pUser.pledges[0].id;
+        logger.info("debuglog pledge id:" +pledge_id);
+        let pledge = response.store.find('pledge', pledge_id);
+//        for(let pl of pUser.pledges ){
+const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
+  logger.info("debuglog pledge object: "+key,value);
+});
+//        }
+
+        logger.info("debuglog pledge:"+ pledge.amount_cents);
+        return {status: 'pledged', id: id, pledgeAmount: pledge.amount_cents};
     }
 
     async refreshTokenForUser(user) {
@@ -80,6 +110,11 @@ class PatreonService {
         }
 
         let user = dbUser.getDetails();
+        logger.info("debuglog: response"+response);
+const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
+  logger.info("debuglog: "+key,value);
+});
+        keyValue(response);
         user.patreon = response;
 
         try {
@@ -89,7 +124,7 @@ class PatreonService {
             return false;
         }
 
-        return true;
+        return response;
     }
 
     async unlinkAccount(username) {
@@ -108,7 +143,8 @@ class PatreonService {
             logger.error(err);
             return false;
         }
-
+        
+        logger.info("debuglog: unlinked");
         return true;
     }
 }
