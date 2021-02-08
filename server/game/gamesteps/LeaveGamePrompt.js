@@ -16,7 +16,7 @@ class GameWonPrompt extends AllPlayerPrompt {
         return {
             promptTitle: this.playerLeft.name + 'has left the game',
             menuTitle: 'No opponent on the other side',
-            buttons: [{ arg: 'report', text: 'Report the game as winner'}, {arg:'continue', text: 'Continue without reporting'}]
+            buttons: [{ arg: 'report', text: 'Claim your achievements'}, {arg:'continue', text: 'Continue without claim'}]
         };
     }
 

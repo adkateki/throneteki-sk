@@ -96,19 +96,20 @@ function writeFile(path, data, opts = 'utf8') {
 async function processPatreonRewards(patreonId, rewardService){
     logger.info("debuglog :"+patreonId);
     let countPatreonRewards = await rewardService.countByUsernameAndType(patreonId, 'patreon');
+    let numberOfTries = 0;
     if(countPatreonRewards===0){
 	logger.info("debuglog : createreward for new patreon");
-	await rewardService.create(patreonId, 'patreon', 20, 60*10 );
-	return res.send({ success: true });
+	await rewardService.create(patreonId, 'patreon', 20, 30*24*60*60 );
+        numberOfTries+=20;
+	//return res.send({ success: true });
     }
     let rewards = await rewardService.findByUsernameAndType(patreonId,'patreon');
     let currentDate = new Date();  
-    let numberOfTries = 0;
     for(let reward of rewards){
 	//insert here pledge update
 	let expirationDate = new Date(reward.expirationDate);
 	if( currentDate > expirationDate ){
-	   await rewardService.updateExpirationDate(patreonId,'patreon',new Date(expirationDate.getTime() + 60*10*1000));
+	   await rewardService.updateExpirationDate(patreonId,'patreon',new Date(expirationDate.getTime() + 30*24*60*60*1000));
 	   await rewardService.updateUsed(reward._id, 0);
 	}
         numberOfTries+=(reward.available - reward.used);

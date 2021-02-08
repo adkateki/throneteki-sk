@@ -237,6 +237,8 @@ class GameServer {
         this.games[pendingGame.id] = game;
 
         game.started = true;
+        game.achievementMode = pendingGame.achievementMode;
+        logger.info("debuglog checkachiMode: "+game.achievementMode);
         for(let player of Object.values(pendingGame.players)) {
             game.selectDeck(player.name, player.deck);
         }
