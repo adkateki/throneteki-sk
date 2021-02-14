@@ -10,7 +10,7 @@ class Socket extends EventEmitter {
         super();
 
         this.socket = socket;
-        this.user = socket.request.user && new User(socket.request.user);
+        this.user = socket.request.user && new User(socket.request.user); 
         this.configService = options.configService;
 
         socket.on('error', this.onError.bind(this));

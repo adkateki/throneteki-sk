@@ -27,14 +27,12 @@ class PatreonService {
         }
 
         let { id } = response.rawJson.data;
-        logger.info("debuglog userid: "+id);
         
         return id;
     }
 
     async getPatreonStatusForUser(user) {
         let response;
-        logger.info("debuglog token: "+user.patreon.access_token);
         let patreonApiClient = patreonAPI(user.patreon.access_token);
 
         try {
@@ -53,19 +51,15 @@ class PatreonService {
         let pUser = response.store.find('user', id);
 
         if(!pUser || !pUser.pledges || pUser.pledges.length === 0) {
-            logger.info("debuglog linked no pledged:");
             return {status: 'linked', id:id};
         } 
         let pledge_id = pUser.pledges[0].id;
-        logger.info("debuglog pledge id:" +pledge_id);
         let pledge = response.store.find('pledge', pledge_id);
 //        for(let pl of pUser.pledges ){
 const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
-  logger.info("debuglog pledge object: "+key,value);
 });
 //        }
 
-        logger.info("debuglog pledge:"+ pledge.amount_cents);
         return {status: 'pledged', id: id, pledgeAmount: pledge.amount_cents};
     }
 
@@ -110,9 +104,7 @@ const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
         }
 
         let user = dbUser.getDetails();
-        logger.info("debuglog: response"+response);
 const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
-  logger.info("debuglog: "+key,value);
 });
         keyValue(response);
         user.patreon = response;
@@ -144,7 +136,6 @@ const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
             return false;
         }
         
-        logger.info("debuglog: unlinked");
         return true;
     }
 }

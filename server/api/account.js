@@ -94,11 +94,9 @@ function writeFile(path, data, opts = 'utf8') {
 }
 
 async function processPatreonRewards(patreonId, rewardService){
-    logger.info("debuglog :"+patreonId);
     let countPatreonRewards = await rewardService.countByUsernameAndType(patreonId, 'patreon');
     let numberOfTries = 0;
     if(countPatreonRewards===0){
-	logger.info("debuglog : createreward for new patreon");
 	await rewardService.create(patreonId, 'patreon', 20, 30*24*60*60 );
         numberOfTries+=20;
 	//return res.send({ success: true });
@@ -350,15 +348,13 @@ module.exports.init = function(server, options) {
                 await userService.setSupporterStatus(user.username, true);
                 userDetails.permissions.isSupporter = req.user.permissions.isSupporter = true;              
             }
-            if(pledgeAmount >= 100){
-		logger.info("debuglog : pledged over amount");
+            if(pledgeAmount >= 500){
     //            let patreonId = await patreonService.getPatreonIdForUser(user);
 		let patreonId = id;
                 let numberOfTries = await processPatreonRewards(patreonId, rewardService);
                 userDetails.patreonTries=numberOfTries;
             }
         } else if(userDetails.patreon !== 'pledged' && userDetails.permissions.isSupporter) {
-            logger.info("debuglog : no pledged");
             await userService.setSupporterStatus(user.username, false);
             // eslint-disable-next-line require-atomic-updates
             userDetails.permissions.isSupporter = req.user.permissions.isSupporter = false;
@@ -778,13 +774,11 @@ module.exports.init = function(server, options) {
                 await userService.setSupporterStatus(user.username, true);
                 user.permissions.isSupporter = req.user.permissions.isSupporter = true;              
             }
-            if(pledgeAmount >= 100){
-		logger.info("debuglog : pledged over amount");
+            if(pledgeAmount >= 500){
 		let patreonId = id;
                 numberOfTries = await processPatreonRewards(patreonId, rewardService);
             }
         } else if(status !== 'pledged' && user.permissions.isSupporter) {
-            logger.info("debuglog : no pledged");
             await userService.setSupporterStatus(user.username, false);
             // eslint-disable-next-line require-atomic-updates
             user.permissions.isSupporter = req.user.permissions.isSupporter = false;
@@ -821,12 +815,10 @@ module.exports.init = function(server, options) {
         if(!user) {
             return;
         }
-        logger.info("debuglog patreonId getPatreonTries: " +user.patreonId);
         rewards = await rewardService.findByUsernameAndType(user.patreonId,'patreon');
         let message = 'Tries withdrawed.';
         let triesWithdrawed = 0;
         for(let reward of rewards){
-            logger.info("debuglog achitries: " +(reward.available - reward.used));
             if (reward.available > reward.used){
                await userService.setAchievementTries(req.user.username, reward.available - reward.used);
                await rewardService.updateUsed(reward._id, reward.available);

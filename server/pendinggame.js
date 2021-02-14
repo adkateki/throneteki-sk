@@ -345,7 +345,8 @@ class PendingGame {
             chessClockTimeLimit: this.chessClockTimeLimit,
             headless: this.headless,
             winner: this.winner,
-            isReported: this.isReported
+            isReported: this.isReported,
+            achievementMode: this.achievementMode
         };
     }
 

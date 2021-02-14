@@ -182,12 +182,10 @@ class Lobby {
 
      async onUpdateTries(socket){
         let user = socket.user;
-        logger.info("debuglog patreonId getPatreonTries: " +user.patreonId);
         let rewards = await this.rewardService.findByUsernameAndType(user.patreonId,'patreon');
         let message = 'Tries withdrawed.';
         let triesWithdrawed = 0;
         for(let reward of rewards){
-            logger.info("debuglog achitries: " +(reward.available - reward.used));
             if (reward.available > reward.used){
                await this.userService.setAchievementTries(user.username, reward.available - reward.used);
                await this.rewardService.updateUsed(reward._id, reward.available);
@@ -424,7 +422,6 @@ class Lobby {
         if(!socket.user) {
             return;
         }
-
         let game = this.findGameForUser(socket.user.username);
         if(game && game.started) {
             this.sendHandoff(socket, game.node, game.id);
@@ -812,7 +809,6 @@ class Lobby {
         if(!game) {
             return Promise.reject('Game not found');
         }
-        logger.info("debuglog test eventname");
         return Promise.all([this.cardService.getAllCards(), this.cardService.getAllPacks(), this.deckService.getById(deckId)])
             .then(results => {
                 let [cards, packs, deck] = results;

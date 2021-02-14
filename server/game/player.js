@@ -390,6 +390,9 @@ class Player extends Spectator {
         let deck = new Deck(this.deck);
         this.faction = deck.createFactionCard(this);
         this.agenda = deck.createAgendaCard(this);
+        if(this.agenda && this.agenda.name==='The Free Folk'){
+            this.faction.name==='The Free Folk';
+        }
     }
 
     hasFlag(flagName) {
