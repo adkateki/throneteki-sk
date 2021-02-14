@@ -10,6 +10,7 @@ class YouMurderedHerChildren extends DrawCard {
                 cardCondition: card => (
                     card.getType() === 'character' &&
                     card.isFaction('martell') &&
+                    card.location === 'play area' &&
                     card.controller === this.controller
                 )
             },

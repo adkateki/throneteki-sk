@@ -29,6 +29,7 @@ class Lobby {
         this.cardService = options.cardService || new CardService(options.db);
         this.eventService = options.eventService || new EventService(options.db);
         this.userService = options.userService || ServiceFactory.userService(options.db, this.configService);
+        this.rewardService = options.rewardService || ServiceFactory.rewardService(options.db);
         this.userAchievementService = options.userAchievementService || ServiceFactory.userAchievementService(options.db);
         this.achievementService = options.achievementService || ServiceFactory.achievementService(options.db);
         this.router = options.router || new GameRouter();
@@ -176,6 +177,26 @@ class Lobby {
 	}).catch(err => {
 	    logger.error(err);
 	});       
+    }
+  
+
+     async onUpdateTries(socket){
+        let user = socket.user;
+        let rewards = await this.rewardService.findByUsernameAndType(user.patreonId,'patreon');
+        let message = 'Tries withdrawed.';
+        let triesWithdrawed = 0;
+        for(let reward of rewards){
+            if (reward.available > reward.used){
+               await this.userService.setAchievementTries(user.username, reward.available - reward.used);
+               await this.rewardService.updateUsed(reward._id, reward.available);
+               triesWithdrawed+=(reward.available - reward.used);
+               message = triesWithdrawed + ' ' + message;
+            } 
+        }  
+        socket.user = await this.userService.getUserById(user._id);
+        let userToReturn = socket.user.getWireSafeDetails();
+        userToReturn.patreonTries=0;
+        socket.send('updateuser', userToReturn);
     }
 
     handshake(ioSocket, next) {
@@ -371,6 +392,7 @@ class Lobby {
         socket.registerEvent('clearsessions', this.onClearSessions.bind(this));
         socket.registerEvent('getnodestatus', this.onGetNodeStatus.bind(this));
         socket.registerEvent('togglenode', this.onToggleNode.bind(this));
+        socket.registerEvent('updatetries', this.onUpdateTries.bind(this));
         socket.registerEvent('restartnode', this.onRestartNode.bind(this));
         socket.registerEvent('motd', this.onMotdChange.bind(this));
 
@@ -400,7 +422,6 @@ class Lobby {
         if(!socket.user) {
             return;
         }
-
         let game = this.findGameForUser(socket.user.username);
         if(game && game.started) {
             this.sendHandoff(socket, game.node, game.id);
@@ -519,7 +540,7 @@ class Lobby {
                 }
             }
             let game = new PendingGame(socket.user, {event, restrictedList, ...gameDetails});
-            game.newGame(socket.id, socket.user, gameDetails.password);
+            game.newGame(socket.id, socket.user, gameDetails.achievementMode, gameDetails.password);
 
             socket.joinChannel(game.id);
             this.sendGameState(game);
@@ -592,7 +613,7 @@ class Lobby {
     }
 
 
-    onJoinGame(socket, gameId, password) {
+    onJoinGame(socket, gameId, achievementMode, password) {
         let existingGame = this.findGameForUser(socket.user.username);
         if(existingGame) {
             return;
@@ -604,7 +625,7 @@ class Lobby {
         if(Object.keys(game.players).length==0) {
             game.owner = socket.user;
         }
-        let message = game.join(socket.id, socket.user, password);
+        let message = game.join(socket.id, socket.user, achievementMode, password );
         if(message) {
             socket.send('passworderror', message);
             return;
@@ -633,6 +654,23 @@ class Lobby {
         if(!game.isOwner(socket.user.username)) {
             return;
         }
+
+        let playersArray = Object.values(game.getPlayers());
+
+        if(playersArray.length>1 && playersArray.every(player => {
+            return player.achievementMode;
+        })) {
+            game.achievementMode=true;
+            playersArray.forEach(player => {
+               this.userService.setAchievementTries(player.name, -1).then(() => {
+                      this.userService.getUserByUsername(player.name).then( user => {
+                             let userUpdated = user.getWireSafeDetails();
+                             this.sockets[player.id].send('updateuser', userUpdated);
+                      });
+               });
+            });
+        }
+
         let titlesPromises = [];
         for(let player of Object.values(game.getPlayers())) {
             titlesPromises.push(this.getUserTitles(player.name).then( userTitles => {
@@ -771,7 +809,6 @@ class Lobby {
         if(!game) {
             return Promise.reject('Game not found');
         }
-        logger.info("debuglog test selectdeck: "+game.event._id);
         return Promise.all([this.cardService.getAllCards(), this.cardService.getAllPacks(), this.deckService.getById(deckId, game.event.name)])
             .then(results => {
                 let [cards, packs, deck] = results;

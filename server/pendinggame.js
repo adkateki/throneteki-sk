@@ -29,6 +29,7 @@ class PendingGame {
         this.headless = details.headless;
         this.winner = null;
         this.isReported = false;      
+        this.achievementMode = false;
     }
 
     // Getters
@@ -92,7 +93,7 @@ class PendingGame {
         this.gameChat.addMessage(...arguments);
     }
 
-    addPlayer(id, user) {
+    addPlayer(id, user, achievementMode) {
         if(!user) {
             logger.error('Tried to add a player to a game that did not have a user object');
             return;
@@ -102,6 +103,7 @@ class PendingGame {
             name: user.username,
             user: user,
             titles: user.titles,
+            achievementMode: achievementMode && user.achievementTries > 0,
             owner: this.owner.username === user.username
         };
     }
@@ -114,18 +116,18 @@ class PendingGame {
         };
     }
 
-    newGame(id, user, password) {
+    newGame(id, user, achievementMode, password) {
         if(password) {
             this.password = crypto.createHash('md5').update(password).digest('hex');
         }
-        this.addPlayer(id, user);
+        this.addPlayer(id, user, achievementMode);
     }
 
     isUserBlocked(user) {
         return _.contains(this.owner.blockList, user.username.toLowerCase());
     }
 
-    join(id, user, password) {
+    join(id, user, achievementMode, password) {
         if(_.size(this.players) === 2 || this.started) {
             return;
         }
@@ -139,7 +141,7 @@ class PendingGame {
                 return 'Incorrect game password';
             }
         }
-        this.addPlayer(id, user);
+        this.addPlayer(id, user, achievementMode);
         this.addMessage('{0} has joined the game', user.username);
     }
 
@@ -308,7 +310,8 @@ class PendingGame {
                 owner: player.owner,
                 role: player.user.role,
                 settings: player.user.settings,
-                titles: player.titles
+                titles: player.titles,
+                achievementMode: player.achievementMode
             };
         });
 
@@ -342,7 +345,8 @@ class PendingGame {
             chessClockTimeLimit: this.chessClockTimeLimit,
             headless: this.headless,
             winner: this.winner,
-            isReported: this.isReported
+            isReported: this.isReported,
+            achievementMode: this.achievementMode
         };
     }
 
@@ -392,7 +396,8 @@ class PendingGame {
             useChessClocks: this.useChessClocks,
             chessClockTimeLimit: this.chessClockTimeLimit,
             headless: this.headless,
-            isReported: this.isReported
+            isReported: this.isReported,
+            achievementMode: this.achievementMode
            
         };
     }

@@ -120,6 +120,9 @@ class Game extends EventEmitter {
         this.router = options.router;
 
         this.pushAbilityContext({ resolutionStage: 'framework' });
+        this.achievementMode = false;
+        
+
     }
 
     reportError(e) {
@@ -554,18 +557,20 @@ class Game extends EventEmitter {
             return;
         }
         this.addAlert('success', '{0} has won the game', winner);
-        if(this.headless && this.event._id !='none') this.addAlert('warning', 'Game succesfully reported. Winner takes his achievements.');
 
         this.winner = winner;
         this.finishedAt = new Date();
         this.winReason = reason;
 
         this.router.gameWon(this, reason, winner);
-        if(this.event && this.event._id == 'none'){ 
-           this.queueStep(new GameWonPrompt(this, winner));
-        }else{
+        if((this.headless && this.event && this.event._id !='none') || this.achievementMode){
+           this.addAlert('warning', 'Game succesfully reported. Winner takes his achievements.');
            this.report();
-    	}
+        }
+        else{
+           this.queueStep(new GameWonPrompt(this, winner));
+        }
+
     }
 
     report(){
@@ -1225,7 +1230,7 @@ class Game extends EventEmitter {
             if(!this.finishedAt) {
                 this.finishedAt = new Date();
             }
-	    if(this.event && this.event._id != 'none' && !this.winner){ 
+	    if(((this.event && this.event._id != 'none') || this.achievementMode) && !this.winner){ 
 		let remainingPlayers=this.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
 		remainingPlayers.forEach( player => this.queueStep(new LeaveGamePrompt(this, player))); 
 	    }
