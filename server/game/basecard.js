@@ -531,6 +531,9 @@ class BaseCard {
         if(menuActionPairs.length === 0) {
             return;
         }
+        if(this.location==='revealed plots'){
+            return;
+        } 
 
         return [
             { command: 'click', text: 'Select Card' }
@@ -694,7 +697,7 @@ class BaseCard {
         if(this.tokens[type] === 0) {
             delete this.tokens[type];
         }
-
+        //this.raiseEvent('onTokenPlaced',{ type: type, card: this});
         this.markAsDirty();
     }
 

@@ -1,5 +1,6 @@
 const AllPlayerPrompt = require('./allplayerprompt');
 const RematchPrompt = require('./RematchPrompt');
+const ReportPrompt = require('./ReportPrompt');
 
 class GameWonPrompt extends AllPlayerPrompt {
     constructor(game, winner) {
@@ -13,28 +14,53 @@ class GameWonPrompt extends AllPlayerPrompt {
     }
 
     activePrompt() {
+        let reportPrompt = this.game.getNumberOfPlayers()>1 && this.game.event._id!='none' && this.game.headless;
+        let continueButton = { arg: 'continue', text: 'Continue Playing' };
+        let mainButton = reportPrompt ? { arg: 'report', text: 'Report the game' } : { arg: 'rematch', text: 'Rematch'};
         return {
             promptTitle: 'Game Won',
             menuTitle: this.winner === null ? 'Game ends in a draw' : this.winner.name + ' has won the game!',
-            buttons: [
-                { arg: 'continue', text: 'Continue Playing' },
-                { arg: 'rematch', text: 'Rematch' }
-            ]
+            buttons: [ reportPrompt ? mainButton : (continueButton, mainButton) ]
         };
     }
 
-    waitingPrompt() {
-        return { menuTitle: 'Waiting for opponent to choose to continue' };
+    waitingPrompt(player) {
+        let reportPrompt = this.game.getNumberOfPlayers()>1 && this.game.event._id!='none';
+        if(reportPrompt && player.mustReport) return { menuTitle: 'Waiting for opponent to report the game also'};
+        return { menuTitle: 'Waiting for opponent to choose to continue'};
+       // return { menuTitle: this.game.getPlayers().filter(player=>!player.left).length>=2 ? 'Waiting for opponent to choose to continue' : 'No opponent on the other side' };
     }
 
     onMenuCommand(player, arg) {
-        let message = arg === 'continue' ? 'to continue' : 'a rematch';
-        this.game.addMessage('{0} would like {1}', player, message);
 
         this.clickedButton[player.name] = true;
 
         if(arg === 'rematch') {
+            this.game.addMessage('{0} would like a rematch', player);
             this.game.queueStep(new RematchPrompt(this.game, player));
+
+            return true;
+        }
+        if(arg === 'report') {
+            this.game.addMessage('{0} reports the game', player);
+            player.mustReport = false;
+            let availablePlayers = this.game.getPlayers().filter( avPlayer => !avPlayer.left);
+            let reportedPlayers = availablePlayers.filter( avPlayer => avPlayer.mustReport ).length==0; 
+            if(reportedPlayers && !this.game.reported){ 
+                 this.game.report(); 
+            }
+            
+         //   if(this.game.getPlayers().filter(player => !player.left ).length>=2){
+         //      !this.game.reported && this.game.queueStep(new ReportPrompt(this.game, player));
+	 //   }
+         //   else{
+         //      !this.game.reported && this.game.report();
+         //   }
+
+            return true;
+        }
+        if(arg === 'continue') {
+            this.game.addMessage('{0} would like to continue.', player);
 
             return true;
         }

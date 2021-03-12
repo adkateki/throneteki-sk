@@ -9,7 +9,8 @@ class Missandei extends DrawCard {
             location: ['hand', 'draw deck'],
             handler: context => {
                 this.game.addMessage('{0} uses {1} to put {1} into play instead of placing in their discard pile', this.controller, this);
-                context.event.replaceHandler(() => {
+                context.event.replaceHandler( event => {
+                    event.cardStateWhenDiscarded = event.card.createSnapshot();
                     this.controller.putIntoPlay(this);
                 });
             }

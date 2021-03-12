@@ -1,4 +1,5 @@
 const Settings = require('../settings');
+const logger = require('../log.js');
 
 class User {
     constructor(userData) {
@@ -80,6 +81,8 @@ class User {
     get isSupporter() {
         return this.userData.permissions && this.userData.permissions.isSupporter;
     }
+ 
+    
 
     get role() {
         if(this.isAdmin) {
@@ -99,6 +102,15 @@ class User {
 
     get patreon() {
         return this.userData.patreon;
+    }
+
+
+    get patreonId() {
+        return this.userData.patreonId;
+    }
+
+    get achievementTries() {
+        return this.userData.achievementTries;
     }
 
     set patreon(value) {
@@ -133,7 +145,9 @@ class User {
             promptedActionWindows: this.userData.promptedActionWindows,
             permissions: this.userData.permissions,
             verified: this.userData.verified,
-            enableGravatar: this.userData.enableGravatar
+            enableGravatar: this.userData.enableGravatar,
+            achievementTries: this.userData.achievementTries,
+            patreonId: this.userData.patreonId
         };
 
         user = Settings.getUserWithDefaultsSet(user);

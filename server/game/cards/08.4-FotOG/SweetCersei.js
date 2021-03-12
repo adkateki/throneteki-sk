@@ -16,7 +16,7 @@ class SweetCersei extends DrawCard {
             message: '{player} uses {source} to place 1 gold from the treasury on {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.gold })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.gold, source: this })),
                     context
                 );
             }

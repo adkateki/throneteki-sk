@@ -1,3 +1,4 @@
+const GameActions = require('../../GameActions');
 const PlotCard = require('../../plotcard.js');
 const {Tokens} = require('../../Constants');
 
@@ -10,7 +11,11 @@ class FavorsFromTheCrown extends PlotCard {
             },
             handler: context => {
                 let numToAdd = context.event.card.tokens[Tokens.gold] >= 3 ? 2 : 1;
-                context.event.card.modifyToken(Tokens.gold, numToAdd);
+                //context.event.card.modifyToken(Tokens.gold, numToAdd);
+                this.game.resolveGameAction(
+                    GameActions.placeToken(() => ({ card: context.event.card, token: Tokens.gold, amount: numToAdd, source: this })),
+                    context
+                );
                 this.game.addMessage('{0} uses {1} to place {2} gold from the treasury on {3}',
                     this.controller, this, numToAdd, context.event.card);
             }

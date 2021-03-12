@@ -55,16 +55,16 @@ class GameServer {
             perMessageDeflate: false
         };
 
-        if(process.env.NODE_ENV !== 'production') {
+ //       if(process.env.NODE_ENV !== 'production') {
             options.path = '/' + (process.env.SERVER || config.nodeIdentity) + '/socket.io';
-        }
+ //       }
 
         this.io = socketio(server, options);
         this.io.set('heartbeat timeout', 30000);
         this.io.use(this.handshake.bind(this));
 
         if(process.env.NODE_ENV === 'production') {
-            this.io.set('origins', 'http://www.throneteki.net:* https://www.throneteki.net:* http://www.theironthrone.net:* https://www.theironthrone.net:*');
+//            this.io.set('origins', 'http://www.throneteki.net:* https://www.throneteki.net:* http://www.theironthrone.net:* https://www.theironthrone.net:*');
         }
 
         this.io.on('connection', this.onConnection.bind(this));
@@ -149,8 +149,10 @@ class GameServer {
 
         let emptyGames = Object.values(this.games).filter(game => game.isEmpty());
         for(let game of emptyGames) {
-            logger.info('closed empty game', game.id);
-            this.closeGame(game);
+            if(!game.headless){
+              logger.info('closed empty game', game.id);
+              this.closeGame(game);
+            }
         }
     }
 
@@ -176,12 +178,17 @@ class GameServer {
         });
     }
 
+    findGamesForEvent(event) {
+        return _.filter(this.games, game => {
+           return game.eventName === event; 
+        });
+    }
+
     sendGameState(game) {
         _.each(game.getPlayersAndSpectators(), player => {
             if(player.left || player.disconnectedAt || !player.socket) {
                 return;
             }
-
             player.socket.send('gamestate', game.getState(player.name));
         });
     }
@@ -203,7 +210,9 @@ class GameServer {
     gameWon(game, reason, winner) {
         this.zmqSocket.send('GAMEWIN', { game: game.getSaveState(), winner: winner.name, reason: reason });
     }
-
+    gameReport(game, isReported) {
+        this.zmqSocket.send('GAMEREPORT', { game: game.getSaveState(), isReported: isReported });
+    }
     rematch(game) {
         this.zmqSocket.send('REMATCH', { game: game.getSaveState() });
 
@@ -228,6 +237,7 @@ class GameServer {
         this.games[pendingGame.id] = game;
 
         game.started = true;
+        game.achievementMode = pendingGame.achievementMode;
         for(let player of Object.values(pendingGame.players)) {
             game.selectDeck(player.name, player.deck);
         }
@@ -376,14 +386,13 @@ class GameServer {
 
     onLeaveGame(socket) {
         var game = this.findGameForUser(socket.user.username);
+        
         if(!game) {
             return;
         }
-
+        
         let player = game.playersAndSpectators[socket.user.username];
         let isSpectator = player.isSpectator();
-
-        game.leave(socket.user.username);
 
         this.zmqSocket.send('PLAYERLEFT', {
             gameId: game.id,
@@ -395,11 +404,18 @@ class GameServer {
         socket.send('cleargamestate');
         socket.leaveChannel(game.id);
 
-        if(game.isEmpty()) {
-            delete this.games[game.id];
-
-            this.zmqSocket.send('GAMECLOSED', { game: game.id });
+        game.leave(socket.user.username);
+        if(!isSpectator){
+//            let remainingPlayers=game.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
+    //        remainingPlayers.forEach( player => game.recordWinner(player,'concede'));    
+//            remainingPlayers.forEach( player => game.recordWinner(player,'concede'));    
+        
         }
+        if(game.isEmpty()) {
+                delete this.games[game.id];
+                this.zmqSocket.send('GAMECLOSED', { game: game.id });
+
+        } 
 
         this.sendGameState(game);
     }
@@ -410,6 +426,7 @@ class GameServer {
         if(!game) {
             return;
         }
+        
 
         if(command === 'leavegame') {
             return this.onLeaveGame(socket);

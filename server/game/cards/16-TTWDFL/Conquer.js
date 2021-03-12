@@ -2,7 +2,7 @@ const DrawCard = require('../../drawcard');
 
 class Conquer extends DrawCard {
     setupCardAbilities(ability) {
-        this.attachmentRestriction({ type: 'location' });
+        this.attachmentRestriction({ type: 'location', unique: false });
 
         this.whileAttached({
             effect: ability.effects.takeControl(() => this.controller)

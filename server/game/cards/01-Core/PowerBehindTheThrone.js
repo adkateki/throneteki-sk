@@ -8,7 +8,7 @@ class PowerBehindTheThrone extends PlotCard {
             message: '{player} uses {source} to place 1 stand token on {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.stand })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.stand, source: this })),
                     context
                 );
             }

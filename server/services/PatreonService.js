@@ -13,6 +13,24 @@ class PatreonService {
         this.patreonOAuthClient = patreonOAuth(clientId, secret);
     }
 
+    async getPatreonIdForUser(user) {
+        let response;
+        let patreonApiClient = patreonAPI(user.patreon.access_token);
+
+        try {
+            response = await patreonApiClient('/current_user', {
+                });
+        } catch(err) {
+            logger.error(err);
+
+            return 'none';
+        }
+
+        let { id } = response.rawJson.data;
+        
+        return id;
+    }
+
     async getPatreonStatusForUser(user) {
         let response;
         let patreonApiClient = patreonAPI(user.patreon.access_token);
@@ -20,7 +38,7 @@ class PatreonService {
         try {
             response = await patreonApiClient('/current_user', {
                 fields: {
-                    pledge: [...pledge_schema.default_attributes, pledge_schema.attributes.declined_since, pledge_schema.attributes.created_at]
+                    pledge: [...pledge_schema.default_attributes, pledge_schema.attributes.declined_since, pledge_schema.attributes.created_at, pledge_schema.attributes.amount_cents]
                 }
             });
         } catch(err) {
@@ -33,10 +51,16 @@ class PatreonService {
         let pUser = response.store.find('user', id);
 
         if(!pUser || !pUser.pledges || pUser.pledges.length === 0) {
-            return 'linked';
+            return {status: 'linked', id:id};
         } 
-        
-        return 'pledged';
+        let pledge_id = pUser.pledges[0].id;
+        let pledge = response.store.find('pledge', pledge_id);
+//        for(let pl of pUser.pledges ){
+const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
+});
+//        }
+
+        return {status: 'pledged', id: id, pledgeAmount: pledge.amount_cents};
     }
 
     async refreshTokenForUser(user) {
@@ -80,6 +104,9 @@ class PatreonService {
         }
 
         let user = dbUser.getDetails();
+const keyValue = (input) => Object.entries(input).forEach(([key,value]) => {
+});
+        keyValue(response);
         user.patreon = response;
 
         try {
@@ -89,7 +116,7 @@ class PatreonService {
             return false;
         }
 
-        return true;
+        return response;
     }
 
     async unlinkAccount(username) {
@@ -108,7 +135,7 @@ class PatreonService {
             logger.error(err);
             return false;
         }
-
+        
         return true;
     }
 }

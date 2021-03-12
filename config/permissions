@@ -1,0 +1,2 @@
+db.users.update({ "username": "admin" }, { $set: { "permissions.canManageUsers": "true" } });
+db.users.update({ "username": "admin" }, { $set: { "permissions.canManagePermissions": "true" } });

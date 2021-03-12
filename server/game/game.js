@@ -38,12 +38,20 @@ const GameActions = require('./GameActions');
 const TimeLimit = require('./timeLimit.js');
 const PrizedKeywordListener = require('./PrizedKeywordListener');
 const GameWonPrompt = require('./gamesteps/GameWonPrompt');
+const LeaveGamePrompt = require('./gamesteps/LeaveGamePrompt');
+const ReportPrompt = require('./gamesteps/ReportPrompt');
+const monk = require('monk');
+const ServiceFactory = require('../services/ServiceFactory.js');
+const achievements = require('./achievements');
+const Achievement = require('./achievement.js'); 
+const logger = require('../log');
 
 class Game extends EventEmitter {
     constructor(details, options = {}) {
         super();
 
         this.event = details.event;
+        this.isReported = false;
         this.eventName = details.event && details.event.name;
         this.restrictedList = details.restrictedList;
         this.allCards = [];
@@ -91,11 +99,16 @@ class Game extends EventEmitter {
         this.skipPhase = {};
         this.cardVisibility = new CardVisibility(this);
         this.winnerOfDominanceInLastRound = undefined;
+        this.winnerOfDominance = undefined;
         this.prizedKeywordListener = new PrizedKeywordListener(this);
         this.muteSpectators = details.muteSpectators;
+        this.headless = details.headless;
+	this.reserve = {
+            isApplying: false,
+        }
 
         for(let player of Object.values(details.players || {})) {
-            this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, this);
+            this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, player.titles, this);
         }
 
         for(let spectator of Object.values(details.spectators || {})) {
@@ -107,6 +120,9 @@ class Game extends EventEmitter {
         this.router = options.router;
 
         this.pushAbilityContext({ resolutionStage: 'framework' });
+        this.achievementMode = false;
+        
+
     }
 
     reportError(e) {
@@ -497,6 +513,9 @@ class Game extends EventEmitter {
         }
 
         let players = this.getPlayers();
+        if(players.length === 1){
+            return;
+        }
         let deckedPlayers = players.filter(player => player.drawDeck.length === 0 && !player.lost);
 
         // TODO: When all remaining players are decked simultaneously, first
@@ -537,7 +556,6 @@ class Game extends EventEmitter {
         if(this.winner) {
             return;
         }
-
         this.addAlert('success', '{0} has won the game', winner);
 
         this.winner = winner;
@@ -545,7 +563,52 @@ class Game extends EventEmitter {
         this.winReason = reason;
 
         this.router.gameWon(this, reason, winner);
-        this.queueStep(new GameWonPrompt(this, winner));
+        if((this.headless && this.event && this.event._id !='none') || this.achievementMode){
+           this.addAlert('warning', 'Game succesfully reported. Winner takes his achievements.');
+           this.report();
+        }
+        else{
+           this.queueStep(new GameWonPrompt(this, winner));
+        }
+
+    }
+
+    report(){
+        
+        this.isReported = true;
+        this.router.gameReport(this, this.winReason, this.isReported);
+        this.configService = ServiceFactory.configService();
+        let db = monk(this.configService.getValue('dbPath'));
+        let achievementService = ServiceFactory.achievementService(db);
+        let userAchievementService = ServiceFactory.userAchievementService(db);
+        this.checkAnyAchievements(achievementService, userAchievementService, this.winner);
+    }
+    
+    reportPrompt(player){
+       this.queueStep(new ReportPrompt(this, player));
+         
+    }
+
+    checkAnyAchievements(achievementService, userAchievementService, winner){
+        achievementService.getAnyAchievements().then(result=> {
+           for(let achievementEntry of result){
+	       let achievementClass = achievements[achievementEntry.code] || Achievement;
+	       let achievementObject = new achievementClass(this.winner);    
+	       if(achievementObject.check()){
+		  userAchievementService.findOneAndUpdate({ username: this.winner.user.username, code: achievementEntry.code}).then(result=>{ 
+		              if(result.progress==achievementEntry.target){
+                                  this.addAlert('success', '{0} has completed \"{1}\" achievement!', winner, achievementEntry.name);
+                                  this.router.sendGameState(this);
+			      }
+                              
+			  }).catch(err => {
+			      logger.info(err);
+			  });
+	       }
+	   }  
+	}).catch(err => {
+		logger.info(err);
+	});
     }
 
     changeStat(playerName, stat, value) {
@@ -589,6 +652,17 @@ class Game extends EventEmitter {
         } else {
             this.addAlert('danger', '{0} sets {1} to {2} ({3})', player, stat, target[stat], (value > 0 ? '+' : '') + value);
         }
+    }
+
+    changeTitle(playerName, selectedTitle) {
+	let player = this.getPlayerByName(playerName);
+        if(!player){
+           return;
+        }
+        if(selectedTitle == ''){
+           return;
+        }
+        player.selectedTitle = selectedTitle;
     }
 
     chat(playerName, message) {
@@ -1118,7 +1192,7 @@ class Game extends EventEmitter {
             return false;
         }
 
-        this.playersAndSpectators[user.username] = new Player(socketId, user, this.owner === user.username, this);
+        this.playersAndSpectators[user.username] = new Player(socketId, user, this.owner === user.username, false, this);
 
         return true;
     }
@@ -1156,8 +1230,16 @@ class Game extends EventEmitter {
             if(!this.finishedAt) {
                 this.finishedAt = new Date();
             }
+	    if(((this.event && this.event._id != 'none') || this.achievementMode) && !this.winner){ 
+		let remainingPlayers=this.getPlayers().filter(remainingPlayer => !remainingPlayer.left);
+		remainingPlayers.forEach( player => this.queueStep(new LeaveGamePrompt(this, player))); 
+	    }
         }
+
+   
     }
+
+  
 
     disconnect(playerName) {
         var player = this.playersAndSpectators[playerName];
@@ -1263,6 +1345,7 @@ class Game extends EventEmitter {
             startedAt: this.startedAt,
             players: players,
             winner: this.winner ? this.winner.name : undefined,
+            isReported: this.isReported,
             winReason: this.winReason,
             finishedAt: this.finishedAt
         };
@@ -1302,7 +1385,8 @@ class Game extends EventEmitter {
                 gameTimeLimitTime: this.timeLimit.timeLimitInMinutes,
                 muteSpectators: this.muteSpectators,
                 useChessClocks: this.useChessClocks,
-                chessClockTimeLimit: this.chessClockTimeLimit
+                chessClockTimeLimit: this.chessClockTimeLimit,
+                isReported: this.isReported
             };
         }
 
@@ -1311,7 +1395,6 @@ class Game extends EventEmitter {
 
     getSummary(activePlayerName, options = {}) {
         var playerSummaries = {};
-
         for(let player of this.getPlayers()) {
             var deck = undefined;
             if(player.left) {
@@ -1335,7 +1418,9 @@ class Game extends EventEmitter {
                 left: player.left,
                 name: player.name,
                 owner: player.owner,
-                user: options.fullData && player.user
+                user: options.fullData && player.user,
+                titles: player.titles,
+                selectedTitle: player.selectedTitle
             };
         }
 
@@ -1360,7 +1445,9 @@ class Game extends EventEmitter {
                 };
             }),
             muteSpectators: this.muteSpectators,
-            useChessClocks: this.useChessClocks
+            useChessClocks: this.useChessClocks,
+            winner: this.winner,
+            isReported: this.isReported
         };
     }
 

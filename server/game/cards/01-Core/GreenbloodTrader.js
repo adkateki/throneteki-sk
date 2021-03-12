@@ -1,5 +1,4 @@
 const DrawCard = require('../../drawcard.js');
-
 class GreenbloodTrader extends DrawCard {
     setupCardAbilities() {
         this.reaction({

@@ -7,7 +7,7 @@ class OldBearMormont extends DrawCard {
             title: 'Stand character',
             cost: ability.costs.kneelSelf(),
             target: {
-                cardCondition: card => card !== this && card.kneeled && (card.isMatch({ faction: 'thenightswatch' }) || card.isMatch({ trait: 'Lord' })),
+                cardCondition: card => card !== this && card.kneeled && card.getType() === 'character' && (card.isMatch({ faction: 'thenightswatch' }) || card.isMatch({ trait: 'Lord' })),
                 gameAction: 'stand'
             },
             message: '{player} kneels {source} to stand {target}',

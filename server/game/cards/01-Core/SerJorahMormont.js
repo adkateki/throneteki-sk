@@ -11,7 +11,7 @@ class SerJorahMormont extends DrawCard {
             message: '{player} is forced to place 1 betrayal token on {source}',
             handler: context => {
                 this.game.resolveGameAction(
-                    GameActions.placeToken(() => ({ card: this, token: Tokens.betrayal })),
+                    GameActions.placeToken(() => ({ card: this, token: Tokens.betrayal, source: this })),
                     context
                 ).thenExecute(() => {
                     if(this.tokens[Tokens.betrayal] >= 3) {

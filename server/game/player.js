@@ -1,5 +1,4 @@
 const shuffle = require('lodash.shuffle');
-
 const Spectator = require('./spectator.js');
 const CardMatcher = require('./CardMatcher');
 const DrawCard = require('./drawcard.js');
@@ -25,11 +24,12 @@ const { DrawPhaseCards, MarshalIntoShadowsCost, SetupGold } = require('./Constan
 const { flatten } = require('underscore');
 
 class Player extends Spectator {
-    constructor(id, user, owner, game) {
+    constructor(id, user, owner, titles, game) {
         super(id, user);
-
         // Ensure game is set before any cards have been created.
         this.game = game;
+        this.titles = titles;
+        this.selectedTitle = user.settings.selectedTitle;
 
         this.beingPlayed = [];
         this.drawDeck = [];
@@ -79,6 +79,7 @@ class Player extends Spectator {
         this.mustChooseAsClaim = [];
         this.plotRevealRestrictions = [];
         this.mustRevealPlot = undefined;
+        this.mustReport = true;
         this.promptedActionWindows = user.promptedActionWindows;
         this.promptDupes = user.settings.promptDupes;
         this.timerSettings = user.settings.timerSettings || {};
@@ -123,7 +124,7 @@ class Player extends Spectator {
             : card => CardMatcher.isMatch(card, predicateOrMatcher);
         return this.game.allCards.filter(card => card.controller === this && card.location === 'play area' && predicate(card));
     }
-
+    
     getNumberOfCardsInPlay(predicateOrMatcher) {
         const predicate = typeof(predicateOrMatcher) === 'function'
             ? predicateOrMatcher
@@ -413,6 +414,9 @@ class Player extends Spectator {
         let deck = new Deck(this.deck);
         this.faction = deck.createFactionCard(this);
         this.agenda = deck.createAgendaCard(this);
+        if(this.agenda && this.agenda.name==='The Free Folk'){
+            this.faction.name==='The Free Folk';
+        }
     }
 
     hasFlag(flagName) {
@@ -1317,7 +1321,9 @@ class Player extends Spectator {
             user: {
                 username: this.user.username
             },
-            chessClock : chessClockState
+            chessClock : chessClockState,
+            titles: this.titles,
+            selectedTitle: this.selectedTitle
         };
 
         return Object.assign(state, promptState);

@@ -10,7 +10,7 @@ const NoImageSource = require('./fetchdata/NoImageSource.js');
 
 const optionsDefinition = [
     { name: 'card-source', type: String, defaultValue: 'json' },
-    { name: 'card-dir', type: String, defaultValue: path.join(__dirname, '..', '..', 'throneteki-json-data') },
+    { name: 'card-dir', type: String, defaultValue: path.join(__dirname, '..', '..', 'throneteki-json-data-sk') },
     { name: 'image-source', type: String, defaultValue: 'cardgamedb' },
     { name: 'image-dir', type: String, defaultValue: path.join(__dirname, '..', '..', 'public', 'img', 'cards') },
     { name: 'no-images', type: Boolean, defaultValue: false }

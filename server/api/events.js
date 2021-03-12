@@ -17,8 +17,8 @@ module.exports.init = function(server, options) {
             return res.status(403).send({ message: 'Forbidden' });
         }
 
-        const { name, useDefaultRestrictedList, defaultRestrictedList, useEventGameOptions, eventGameOptions, restricted, banned, restrictSpectators, validSpectators } = req.body.event;
-        const event = { name, useDefaultRestrictedList, defaultRestrictedList, useEventGameOptions, eventGameOptions, restricted, banned, pods: [], restrictSpectators, validSpectators };
+        const { name, allowDeckEdition, useDefaultRestrictedList, defaultRestrictedList, useEventGameOptions, eventGameOptions, restricted, banned, restrictSpectators, validSpectators } = req.body.event;
+        const event = { name, allowDeckEdition, useDefaultRestrictedList, defaultRestrictedList, useEventGameOptions, eventGameOptions, restricted, banned, pods: [], restrictSpectators, validSpectators };
 
         eventService.create(event)
             .then(e => {
@@ -34,10 +34,12 @@ module.exports.init = function(server, options) {
             return res.status(403).send({ message: 'Forbidden' });
         }
 
-        const { name, useDefaultRestrictedList, defaultRestrictedList, useEventGameOptions, eventGameOptions, restricted, banned, restrictSpectators, validSpectators } = req.body.event;
+        const { name, allowDeckEdition, numberOfDecks, useDefaultRestrictedList, defaultRestrictedList, useEventGameOptions, eventGameOptions, restricted, banned, restrictSpectators, validSpectators } = req.body.event;
         const event = {
             id: req.params.id,
             name,
+            allowDeckEdition,
+            numberOfDecks,
             useDefaultRestrictedList,
             defaultRestrictedList,
             useEventGameOptions,

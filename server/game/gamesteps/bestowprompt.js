@@ -1,6 +1,7 @@
 const range = require('lodash.range');
 
 const BaseStep = require('./basestep');
+const {Tokens} = require('../Constants');
 
 class BestowPrompt extends BaseStep {
     constructor(game, player, card) {
@@ -42,6 +43,7 @@ class BestowPrompt extends BaseStep {
         }
 
         this.game.transferGold({ from: player, to: this.card, amount: gold, activePlayer: this.player });
+        this.game.raiseEvent('onTokenPlaced', { card: this.card, source: this.card, amount: gold, token: Tokens.gold });
         this.game.addMessage('{0} bestows {1} gold on {2}', this.player, gold, this.card);
 
         return true;

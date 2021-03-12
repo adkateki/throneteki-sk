@@ -26,6 +26,10 @@ class PendingGame {
         this.muteSpectators = details.muteSpectators;
         this.useChessClocks = details.useChessClocks;
         this.chessClockTimeLimit = details.chessClockTimeLimit;
+        this.headless = details.headless;
+        this.winner = null;
+        this.isReported = false;      
+        this.achievementMode = false;
     }
 
     // Getters
@@ -89,16 +93,17 @@ class PendingGame {
         this.gameChat.addMessage(...arguments);
     }
 
-    addPlayer(id, user) {
+    addPlayer(id, user, achievementMode) {
         if(!user) {
             logger.error('Tried to add a player to a game that did not have a user object');
             return;
         }
-
         this.players[user.username] = {
             id: id,
             name: user.username,
             user: user,
+            titles: user.titles,
+            achievementMode: achievementMode && user.achievementTries > 0,
             owner: this.owner.username === user.username
         };
     }
@@ -111,19 +116,18 @@ class PendingGame {
         };
     }
 
-    newGame(id, user, password) {
+    newGame(id, user, achievementMode, password) {
         if(password) {
             this.password = crypto.createHash('md5').update(password).digest('hex');
         }
-
-        this.addPlayer(id, user);
+        this.addPlayer(id, user, achievementMode);
     }
 
     isUserBlocked(user) {
         return _.contains(this.owner.blockList, user.username.toLowerCase());
     }
 
-    join(id, user, password) {
+    join(id, user, achievementMode, password) {
         if(_.size(this.players) === 2 || this.started) {
             return;
         }
@@ -137,8 +141,7 @@ class PendingGame {
                 return 'Incorrect game password';
             }
         }
-
-        this.addPlayer(id, user);
+        this.addPlayer(id, user, achievementMode);
         this.addMessage('{0} has joined the game', user.username);
     }
 
@@ -297,7 +300,6 @@ class PendingGame {
             } else {
                 deck = {};
             }
-
             playerSummaries[player.name] = {
                 agenda: this.started && player.agenda ? player.agenda.cardData.code : undefined,
                 deck: activePlayer ? deck : {},
@@ -307,7 +309,9 @@ class PendingGame {
                 name: player.name,
                 owner: player.owner,
                 role: player.user.role,
-                settings: player.user.settings
+                settings: player.user.settings,
+                titles: player.titles,
+                achievementMode: player.achievementMode
             };
         });
 
@@ -338,20 +342,28 @@ class PendingGame {
             gameTimeLimit: this.gameTimeLimit,
             muteSpectators: this.muteSpectators,
             useChessClocks: this.useChessClocks,
-            chessClockTimeLimit: this.chessClockTimeLimit
+            chessClockTimeLimit: this.chessClockTimeLimit,
+            headless: this.headless,
+            winner: this.winner,
+            isReported: this.isReported,
+            achievementMode: this.achievementMode
         };
     }
 
     getStartGameDetails() {
         const players = {};
-
+         
         for(let playerDetails of Object.values(this.players)) {
-            const {name, user, ...rest} = playerDetails;
+            const {name, user, titles, ...rest} = playerDetails;
             players[name] = {
                 name,
                 user: user.getDetails(),
+                titles,
                 ...rest
             };
+            if(!players[name].user.settings.selectedTitle && players[name].titles.length>0){
+                players[name].user.settings.selectedTitle = players[name].titles[0];
+            }
         }
 
         const spectators = {};
@@ -382,7 +394,11 @@ class PendingGame {
             gameTimeLimit: this.gameTimeLimit,
             muteSpectators: this.muteSpectators,
             useChessClocks: this.useChessClocks,
-            chessClockTimeLimit: this.chessClockTimeLimit
+            chessClockTimeLimit: this.chessClockTimeLimit,
+            headless: this.headless,
+            isReported: this.isReported,
+            achievementMode: this.achievementMode
+           
         };
     }
 }
