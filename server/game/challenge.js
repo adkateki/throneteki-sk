@@ -11,6 +11,7 @@ class Challenge {
         this.isSinglePlayer = !properties.defendingPlayer;
         this.defendingPlayer = properties.defendingPlayer || this.singlePlayerDefender();
         this.initiatedAgainstPlayer = this.defendingPlayer;
+        this.isInitiated = false || properties.isInitiated;
         this.challengeType = properties.challengeType;
         this.number = properties.number;
         this.attackers = [];
@@ -29,6 +30,7 @@ class Challenge {
         let dummyPlayer = new Player('', Settings.getUserWithDefaultsSet({ name: 'Dummy Player' }), false, this.game);
         dummyPlayer.initialise();
         dummyPlayer.resetForStartOfRound();
+        dummyPlayer.isFake = true;
         return dummyPlayer;
     }
 
@@ -40,6 +42,7 @@ class Challenge {
     initiateChallenge() {
         this.attackingPlayer.trackChallenge(this);
         this.defendingPlayer.trackChallenge(this);
+        this.isInitiated = true;
     }
 
     declareAttackers(attackers) {
@@ -288,10 +291,12 @@ class Challenge {
         for(let card of this.defenders) {
             card.inChallenge = false;
         }
+        this.isInitiated = false;
     }
 
     cancelChallenge() {
         this.cancelled = true;
+        this.isInitiated = false;
 
         this.resetCards();
 
